@@ -1,6 +1,2 @@
 <Project>
-  <PropertyGroup>
-    <!-- Restore old RID graph to support win10-* RIDs used by WindowsAppSDK -->
-    <UseRidGraph>true</UseRidGraph>
-  </PropertyGroup>
 </Project>
