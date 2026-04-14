@@ -18,7 +18,7 @@ namespace AINewsPipeline.WinUI.Views
             CountSlider.ValueChanged += CountSlider_ValueChanged;
         }
 
-        private void CountSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private void CountSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             CountText.Text = ((int)e.NewValue).ToString();
         }
