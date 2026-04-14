@@ -91,15 +91,15 @@ jobs:
     
     - name: Create start script
       run: |
-        $startScript = @"
-@echo off
-cd /d "%~dp0"
-if not exist "data\news_pipeline.db" (
-    echo 初始化数据库...
-)
-start "" "AINewsPipeline.WinUI.exe"
-"@
-        $startScript | Out-File -FilePath bin/win-x64/start.bat -Encoding utf8
+        $content = @(
+          '@echo off',
+          'cd /d "%~dp0"',
+          'if not exist "data\news_pipeline.db" (',
+          '    echo 初始化数据库...',
+          ')',
+          'start "" "AINewsPipeline.WinUI.exe"'
+        )
+        Set-Content -Path bin/win-x64/start.bat -Value $content -Encoding UTF8
       working-directory: ${{ github.workspace }}
     
     - name: Create zip archive
