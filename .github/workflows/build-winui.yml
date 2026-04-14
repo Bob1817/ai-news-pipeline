@@ -13,54 +13,27 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4.2.2
-    
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4.1.0
       with:
         dotnet-version: '8.0.x'
-    
-    - name: Install Windows SDK components
-      run: |
-        choco install windows-sdk-10.0.19041.0 --yes --no-progress
-      continue-on-error: true
-    
-    - name: Set environment variables
-      run: |
-        echo "MSBUILD_PATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "WINDOWSSDKDIR=C:\Program Files (x86)\Windows Kits\10" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-    
-    - name: Find MSBuild
-      run: |
-        $msbuildPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-        if ($msbuildPath) {
-          echo "MSBUILD_PATH=$msbuildPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host "Found MSBuild at $msbuildPath"
-        }
-    
+
     - name: Restore NuGet packages
-      run: dotnet restore WinUI/AINewsPipeline.WinUI.sln
+      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
       working-directory: ${{ github.workspace }}
-    
-    - name: Publish WinUI application directly
-      run: |
-        dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
-          -c Release `
-          -r win-x64 `
-          --self-contained true `
-          -o bin/win-x64 `
-          /p:WindowsAppSDKSelfContained=true `
-          /p:Platform=x64 `
-          /p:AppxPackage=false `
-          --verbosity detailed
+
+    - name: Publish WinUI application
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release --self-contained true -o bin/win-x64
       working-directory: ${{ github.workspace }}
-    
+
     - name: List published files
       run: Get-ChildItem -Path bin/win-x64 -Recurse
-    
+
     - name: Create directory structure
       run: |
         New-Item -ItemType Directory -Path bin/win-x64/config -Force | Out-Null
@@ -70,7 +43,7 @@ jobs:
         New-Item -ItemType Directory -Path bin/win-x64/data/llm_cache -Force | Out-Null
         New-Item -ItemType Directory -Path bin/win-x64/logs -Force | Out-Null
       working-directory: ${{ github.workspace }}
-    
+
     - name: Copy configuration files
       run: |
         if (Test-Path "config") {
@@ -80,7 +53,7 @@ jobs:
           Copy-Item -Path resources/styles/* -Destination bin/win-x64/resources/styles/ -Recurse -Force -ErrorAction SilentlyContinue
         }
       working-directory: ${{ github.workspace }}
-    
+
     - name: Create start script
       run: |
         $content = @(
@@ -93,17 +66,17 @@ jobs:
         )
         Set-Content -Path bin/win-x64/start.bat -Value $content -Encoding UTF8
       working-directory: ${{ github.workspace }}
-    
+
     - name: Create zip archive
       run: Compress-Archive -Path bin/win-x64/* -DestinationPath bin/AI新闻自动化系统_v1.0.0_win-x64.zip -Force
       working-directory: ${{ github.workspace }}
-    
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4.3.3
       with:
         name: AI新闻自动化系统
         path: bin/AI新闻自动化系统_v1.0.0_win-x64.zip
-    
+
     - name: Create Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v2.0.4
@@ -112,16 +85,16 @@ jobs:
         name: AI新闻自动化系统 v1.0.0
         body: |
           ## 发布说明
-          
+
           ### 更新内容
           - 基于 WinUI 3 框架的现代化界面
           - 支持新闻采集、分析、生成和发布
           - 支持 Ollama 和 OpenAI LLM 提供商
           - 多平台发布支持（微信公众号、微博、知乎等）
-          
+
           ### 下载
           - `AI新闻自动化系统_v1.0.0_win-x64.zip` - Windows x64 版本
-          
+
           ### 使用方法
           1. 下载并解压压缩包
           2. 运行 `start.bat` 或直接双击 `AINewsPipeline.WinUI.exe`
