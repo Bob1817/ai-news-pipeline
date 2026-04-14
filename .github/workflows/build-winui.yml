@@ -49,20 +49,20 @@ jobs:
 
     - name: Build App
       run: |
-        msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
-        /t:Build
-        /p:Configuration=Release
-        /p:Platform=x64
-        /v:minimal
+        msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
+          /t:Build `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /v:minimal
 
     - name: Package MSIX
       run: |
-        msbuild WinUI/AINewsPipeline.Package/AINewsPipeline.Package.wapproj
-        /t:Build
-        /p:Configuration=Release
-        /p:Platform=x64
-        /p:AppxBundle=Never
-        /v:minimal
+        msbuild WinUI/AINewsPipeline.Package/AINewsPipeline.Package.wapproj `
+          /t:Build `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /p:AppxBundle=Never `
+          /v:minimal
 
     - name: Show build output
       if: always()
