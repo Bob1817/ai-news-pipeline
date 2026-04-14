@@ -1,0 +1,55 @@
+# 新闻源配置
+# type: browser (浏览器自动化) / api (API接口) / rss (RSS订阅)
+sources:
+  - name: "新浪新闻"
+    type: browser
+    url: "https://news.sina.com.cn/"
+    search_url: "https://search.sina.com.cn/news?q={keyword}&c=news&sort=time"
+    selectors:
+      list: ".result .box-result"
+      title: "h2 a"
+      summary: ".result-content p"
+      time: ".fgray_time"
+      link: "h2 a"
+
+  - name: "网易新闻"
+    type: browser
+    url: "https://news.163.com/"
+    search_url: "https://www.163.com/search?keyword={keyword}&keywordfrom=news"
+    selectors:
+      list: ".search_result li"
+      title: "h3 a"
+      summary: ".search_result_desc"
+      time: ".search_result_time"
+      link: "h3 a"
+
+  - name: "今日头条"
+    type: browser
+    url: "https://www.toutiao.com/"
+    search_url: "https://so.toutiao.com/search?keyword={keyword}&pd=synthesis"
+    selectors:
+      list: ".result-content .cs-view"
+      title: ".text-underline a"
+      summary: ".text-underline"
+      time: ".text-underline .text-muted"
+      link: ".text-underline a"
+
+  - name: "百度新闻"
+    type: browser
+    url: "https://news.baidu.com/"
+    search_url: "https://www.baidu.com/s?tn=news&word={keyword}"
+    selectors:
+      list: ".result"
+      title: "h3 a"
+      summary: ".c-abstract"
+      time: ".c-color-gray"
+      link: "h3 a"
+
+  # RSS源（更稳定）
+  - name: "澎湃新闻RSS"
+    type: rss
+    url: "https://rsshub.app/thepaper/featured"
+
+  - name: "36氪RSS"
+    type: rss
+    url: "https://rsshub.app/36kr/newsflashes"

@@ -1,0 +1,92 @@
+# 全局设置
+app:
+  name: "AI新闻自动化系统"
+  version: "1.0.0"
+  language: "zh-CN"
+# LLM 配置
+llm:
+  # 提供商：ollama / openai
+  provider: "ollama"
+  # 模型名称
+  model: "qwen2:7b"
+  # OpenAI 兼容 API 地址
+  api_url: ""
+  # 文本生成接口路径
+  text_url: "/chat/completions"
+  # API Key (OpenAI 兼容模式)
+  api_key: ""
+
+
+# 采集设置
+collector:
+  # 默认采集数量选项
+  count_options: [10, 20, 30]
+  default_count: 10
+  # 采集时间范围（小时）
+  time_range_hours: 24
+  # 采集超时（秒）
+  timeout: 30
+  # 重试次数
+  retry_times: 3
+
+# 生成设置
+generator:
+  # 默认生成主题数选项
+  theme_options: [3, 5, 8]
+  default_theme_count: 3
+  # 文章字数范围
+  article_min_words: 800
+  article_max_words: 1500
+  # 是否自动生成配图
+  auto_generate_image: true
+  # 图片生成方式: local (本地SD) / api (调用API)
+  image_generation_method: api
+
+# 分发设置
+distributor:
+  # 发布前是否需要人工审核
+  require_review: true
+  # 发布间隔（秒），避免被封
+  publish_interval: 10
+
+# 监测设置
+monitor:
+  # 监测间隔（分钟）
+  check_interval: 60
+  # 数据保留天数
+  data_retention_days: 90
+
+# 分发器配置
+distributors:
+  # 网站后台配置
+  website:
+    url: ""
+    username: ""
+    password: ""
+  # 微信公众号配置
+  wechat:
+    app_id: ""
+    app_secret: ""
+    api_url: "https://api.weixin.qq.com"
+    access_token_expire: 7200
+
+# 行业列表
+industries:
+  - name: "科技"
+    keywords: ["人工智能", "芯片", "5G", "云计算", "互联网", "新能源汽车"]
+  - name: "财经"
+    keywords: ["股市", "基金", "央行", "GDP", "IPO", "货币政策"]
+  - name: "医疗健康"
+    keywords: ["新药", "医保", "公共卫生", "疫苗", "中医"]
+  - name: "教育"
+    keywords: ["高考", "考研", "职业教育", "在线教育", "留学"]
+  - name: "体育"
+    keywords: ["足球", "篮球", "奥运会", "电竞", "马拉松"]
+  - name: "娱乐"
+    keywords: ["电影", "音乐", "综艺", "明星", "游戏"]
+  - name: "社会"
+    keywords: ["民生", "法律", "环保", "交通", "住房"]
+  - name: "国际"
+    keywords: ["中美关系", "欧盟", "一带一路", "地缘政治"]
+  - name: "人力资源服务"
+    keywords: ["招聘", "猎头", "社保", "劳务派遣", "灵活用工", "人才服务"]

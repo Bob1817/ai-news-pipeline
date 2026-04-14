@@ -1,0 +1,63 @@
+<Page
+    x:Class="AINewsPipeline.WinUI.Views.ArticlesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="文章管理">
+
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="文章管理" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,20" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
+            <TextBox x:Name="SearchBox" Width="300" PlaceholderText="搜索文章..." />
+            <Button Content="搜索" Click="SearchButton_Click" />
+            <ComboBox x:Name="StatusComboBox" Width="150" PlaceholderText="状态筛选">
+                <ComboBoxItem>全部</ComboBoxItem>
+                <ComboBoxItem>已生成</ComboBoxItem>
+                <ComboBoxItem>已发布</ComboBoxItem>
+                <ComboBoxItem>待审核</ComboBoxItem>
+            </ComboBox>
+            <Button x:Name="RefreshButton" Content="刷新" Click="RefreshButton_Click" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,20,0,0" Spacing="20">
+            <ListView x:Name="ArticlesListView" Width="400" SelectionChanged="ArticlesListView_SelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local:ArticleItem">
+                        <StackPanel Padding="8" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}">
+                            <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Bind CreatedAt}" FontSize="12" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                            <TextBlock Text="{x:Bind Status}" FontSize="12" Margin="0,4,0,0">
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{x:Bind StatusColor}" />
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <StackPanel Width="*" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="编辑" Click="EditButton_Click" x:Name="EditButton" IsEnabled="False" />
+                    <Button Content="预览" Click="PreviewButton_Click" x:Name="PreviewButton" IsEnabled="False" />
+                    <Button Content="导出" Click="ExportButton_Click" x:Name="ExportButton" IsEnabled="False" />
+                    <Button Content="删除" Click="DeleteButton_Click" x:Name="DeleteButton" IsEnabled="False" />
+                </StackPanel>
+
+                <ScrollViewer Margin="0,12,0,0" Height="*">
+                    <TextBlock x:Name="ContentPreview" TextWrapping="Wrap" FontSize="14" LineHeight="24" />
+                </ScrollViewer>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

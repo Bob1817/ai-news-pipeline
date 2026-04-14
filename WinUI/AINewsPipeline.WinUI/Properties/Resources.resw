@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="AppName" xml:space="preserve">
+    <value>AI新闻自动化系统</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>基于AI的新闻自动化采集、分析、生成和发布系统</value>
+  </data>
+</root>

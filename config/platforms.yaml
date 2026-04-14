@@ -1,0 +1,49 @@
+# 发布平台配置
+platforms:
+  website:
+    enabled: true
+    name: "自有官网"
+    type: "browser"
+    admin_url: "https://your-website.com/admin/login"
+    login_selectors:
+      username_input: "#username"
+      password_input: "#password"
+      submit_button: "#login-btn"
+    publish_flow:
+      new_article_url: "https://your-website.com/admin/article/new"
+      selectors:
+        title_input: "#article-title"
+        content_editor: "#content-editor"   # 富文本编辑器
+        content_iframe: "#content-iframe"   # 如果编辑器在iframe中
+        image_upload: "#cover-image-upload"
+        keywords_input: "#keywords"
+        category_select: "#category"
+        publish_button: "#publish-btn"
+        save_draft_button: "#save-draft-btn"
+
+  wechat:
+    enabled: true
+    name: "微信公众号"
+    type: "browser"
+    admin_url: "https://mp.weixin.qq.com/"
+    # 微信公众号需要扫码登录，无法完全自动化
+    # 流程：自动填写内容 -> 保存草稿 -> 人工扫码发布
+    login_method: "qrcode"
+    publish_flow:
+      selectors:
+        new_article_button: ".new-creation__add"
+        title_input: "#title"
+        content_editor: ".ql-editor"
+        author_input: "#author"
+        cover_image_button: ".js_icon_upload"
+        save_button: ".mass_send"
+    notes: "微信公众号发布需要人工扫码确认最后一步"
+
+  wordpress:
+    enabled: false
+    name: "WordPress站点"
+    type: "rest_api"
+    api_url: "https://your-wp-site.com/wp-json/wp/v2"
+    auth:
+      username: "admin"
+      password: "application-password"

@@ -1,0 +1,67 @@
+# AI News Pipeline - 配置文件
+
+## 全局设置
+
+```yaml
+# 系统设置
+system:
+  name: "AI News Pipeline"
+  version: "1.0.0"
+  debug: false
+
+# 分发器设置
+distributor:
+  # 是否需要人工审核
+  require_review: true
+  # 发布间隔（秒）
+  publish_interval: 5
+  # 文章间隔（秒）
+  article_interval: 10
+
+# 采集器设置
+collector:
+  # 最大并发数
+  max_concurrent: 3
+  # 超时时间（秒）
+  timeout: 30
+  # 时间范围（小时）
+  time_range_hours: 24
+
+# 行业列表
+industries:
+  - name: "科技"
+    keywords: ["科技", "互联网", "AI", "人工智能", "芯片", "软件"]
+  - name: "财经"
+    keywords: ["财经", "金融", "股市", "经济", "投资", "银行"]
+  - name: "体育"
+    keywords: ["体育", "足球", "篮球", "奥运", "比赛", "运动员"]
+  - name: "娱乐"
+    keywords: ["娱乐", "电影", "明星", "音乐", "电视剧", "综艺"]
+  - name: "汽车"
+    keywords: ["汽车", "新能源", "电动车", "自动驾驶", "车企"]
+  - name: "健康"
+    keywords: ["健康", "医疗", "医药", "养生", "疾病", "医院"]
+  - name: "教育"
+    keywords: ["教育", "学习", "培训", "学校", "考试", "学术"]
+  - name: "房产"
+    keywords: ["房产", "房地产", "楼市", "购房", "装修", "家居"]
+  - name: "美食"
+    keywords: ["美食", "餐饮", "烹饪", "食谱", "餐厅", "小吃"]
+  - name: "旅游"
+    keywords: ["旅游", "旅行", "景点", "酒店", "度假", "攻略"]
+```
+
+## 使用说明
+
+1. 复制此文件：`cp config/settings.yaml.example config/settings.yaml`
+2. 编辑配置文件，添加/修改行业和系统设置
+3. 重启服务生效
+
+## 添加新行业
+
+在 `industries` 列表中添加新行业：
+
+```yaml
+  - name: "你的行业"
+    keywords: ["关键词 1", "关键词 2", "关键词 3"]
+```

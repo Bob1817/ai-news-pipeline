@@ -1,0 +1,82 @@
+# Python virtual environment
+venv/
+.env
+.env.example
+
+# IDE settings
+.claude/
+.vscode/
+.idea/
+
+# Test coverage
+.coverage
+
+# Archive files
+*.tar.gz
+*.zip
+
+# Compiled output
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# NuGet packages
+packages/
+*.nupkg
+.nuget/
+
+# Build artifacts
+*.msix
+*.msixbundle
+*.appxbundle
+
+# Logs
+logs/
+*.log
+
+# Data directories
+data/
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables
+.env
+.env.local
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.ide
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor directories
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.temp
+
+# Build output directories
+dist/
+build/
+
+# Large binary files
+*.pkg
+AI新闻自动化系统

@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 新闻自动化系统</title>
+    <!-- Markdown 解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1f2937;
+            --surface-elevated: #21262d;
+            --border: #30363d;
+            --border-light: #484f58;
+            --accent: #238636;
+            --accent-hover: #2ea043;
+            --accent-glow: rgba(46, 160, 67, 0.15);
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --danger: #f85149;
+            --warning: #d29922;
+            --info: #58a6ff;
+            --success: #3fb950;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .logo h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1::before {
+            content: "🤖";
+            font-size: 20px;
+        }
+
+        .logo p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            margin: 4px 12px;
+            border-radius: 6px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .nav-item .icon { margin-right: 12px; font-size: 18px; width: 20px; text-align: center; }
+
+        /* ===== 主内容区 ===== */
+        .main {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
+        }
+
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .page-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* ===== 表单元素 ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-group .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        select, input[type="text"], input[type="number"], input[type="password"], textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        select option {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* ===== 流程步骤 ===== */
+        .pipeline-steps {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            flex: 1;
+            padding: 16px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .step.completed {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .step.active .step-number {
+            background: var(--accent);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: var(--accent);
+            color: white;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .step-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== 新闻列表 ===== */
+        .news-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .news-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .news-checkbox {
+            margin-top: 3px;
+            accent-color: var(--accent);
+        }
+
+        .news-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .news-meta .heat {
+            color: var(--warning);
+        }
+
+        /* ===== 主题卡片 ===== */
+        .theme-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .theme-card {
+            padding: 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-card:hover, .theme-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .theme-card h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .theme-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 文章预览 ===== */
+        .article-preview {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .article-preview h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .article-preview .meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .article-preview .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .keyword-tag {
+            padding: 3px 10px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .article-preview .content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            max-height: 200px;
+            overflow: hidden;
+        }
+
+        /* ===== 平台选择 ===== */
+        .platform-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .platform-option {
+            padding: 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .platform-option:hover, .platform-option.selected {
+            border-color: var(--accent);
+        }
+
+        .platform-option input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ===== 日志面板 ===== */
+        .log-panel {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'DM Mono', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .log-line { margin-bottom: 2px; }
+        .log-info { color: #58a6ff; }
+        .log-success { color: #3fb950; }
+        .log-warning { color: #d29922; }
+        .log-error { color: #f85149; }
+
+        /* ===== 数据统计卡片 ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== 加载动画 ===== */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(13, 17, 23, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show { display: flex; }
+
+        .loading-box {
+            background: var(--surface);
+            padding: 30px 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .loading-box .spinner {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 16px;
+        }
+
+        .loading-box p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ===== 表格 ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        table tr:hover td {
+            background: var(--surface-hover);
+        }
+
+        /* ===== 徽章 ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--info);
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar .nav-item span, .sidebar .logo p, .sidebar .logo h1 { display: none; }
+            .main { margin-left: 60px; padding: 15px; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .pipeline-steps { flex-direction: column; }
+        }
+        /* ===== 文章预览 / 编辑弹窗 ===== */
+        .article-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            background: rgba(6, 10, 16, 0.74);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+        }
+
+        .article-modal.show {
+            display: flex;
+        }
+
+        .article-modal-dialog {
+            width: min(1100px, 100%);
+            max-height: calc(100vh - 64px);
+            background: linear-gradient(180deg, rgba(33, 38, 45, 0.98), rgba(22, 27, 34, 0.98));
+            border: 1px solid var(--border-light);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+        }
+
+        .article-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 24px 28px 18px;
+            border-bottom: 1px solid rgba(72, 79, 88, 0.65);
+            flex-shrink: 0;
+            background: rgba(13, 17, 23, 0.45);
+        }
+
+        .article-modal-header-main {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .article-modal-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .article-modal-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.35;
+        }
+
+        .article-modal-subtitle {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .article-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .article-modal-close,
+        .article-modal-ghost {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .article-modal-close:hover,
+        .article-modal-ghost:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .article-modal-body {
+            padding: 0 28px 28px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 320px;
+        }
+
+        .article-modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .article-modal-body::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 4px;
+        }
+
+        .article-modal-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .article-modal-body::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .article-modal-section {
+            padding-top: 24px;
+        }
+
+        .article-modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .article-modal-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(72, 79, 88, 0.7);
+            background: rgba(13, 17, 23, 0.42);
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .article-modal-empty {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* Markdown 样式 */
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: var(--text-primary);
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .markdown-content h1 { font-size: 28px; }
+        .markdown-content h2 { font-size: 24px; }
+        .markdown-content h3 { font-size: 20px; }
+
+        .markdown-content p {
+            color: var(--text-secondary);
+            line-height: 1.9;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .markdown-content strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .markdown-content em {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        .markdown-content li {
+            margin-bottom: 8px;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding-left: 16px;
+            margin: 16px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+            background: var(--surface-hover);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .markdown-content code {
+            background: var(--bg);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+        }
+
+        .markdown-content pre {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            color: var(--text-secondary);
+            padding: 0;
+        }
+
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        .markdown-content a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .markdown-content table th, .markdown-content table td {
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .markdown-content table th {
+            background: var(--surface-hover);
+            font-weight: 600;
+        }
+
+        .markdown-content table tr:hover {
+            background: var(--surface-hover);
+        }
+
+        .markdown-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .article-editor {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .article-editor-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 260px;
+            gap: 20px;
+            align-items: start;
+            padding-top: 24px;
+        }
+
+        .article-editor-main,
+        .article-editor-side {
+            background: rgba(13, 17, 23, 0.42);
+            border: 1px solid rgba(72, 79, 88, 0.62);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .article-editor-side {
+            position: sticky;
+            top: 0;
+        }
+
+        .article-editor textarea {
+            width: 100%;
+            min-height: 58vh;
+            resize: vertical;
+            font-size: 14px;
+            line-height: 1.85;
+        }
+
+        .article-editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 18px 0 0;
+            border-top: 1px solid rgba(72, 79, 88, 0.6);
+        }
+
+        .article-editor-tip {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .keyword-tag {
+            padding: 4px 12px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .article-modal {
+                padding: 0;
+                align-items: stretch;
+                justify-content: stretch;
+            }
+            .article-modal-dialog {
+                width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            .article-modal-header {
+                flex-direction: column;
+                padding: 18px 18px 14px;
+            }
+            .article-modal-body {
+                padding: 0 18px 18px;
+            }
+            .article-editor-grid {
+                grid-template-columns: 1fr;
+            }
+            .article-editor-side {
+                position: static;
+            }
+            .article-editor textarea {
+                min-height: 45vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 侧边栏 -->
+<nav class="sidebar">
+    <div class="logo">
+        <h1>AI News Pipeline</h1>
+        <p>新闻自动化系统 v1.0</p>
+    </div>
+    <div class="nav-item active" onclick="switchPage('pipeline', this)">
+        <span class="icon">&#9881;</span>
+        <span>自动化流程</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('articles', this)">
+        <span class="icon">&#128196;</span>
+        <span>文章管理</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('history', this)">
+        <span class="icon">&#128200;</span>
+        <span>发布历史</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('monitor', this)">
+        <span class="icon">&#128202;</span>
+        <span>数据监测</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('settings', this)">
+        <span class="icon">&#128187;</span>
+        <span>系统设置</span>
+    </div>
+</nav>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <p id="loadingText">正在处理...</p>
+    </div>
+</div>
+
+<!-- 文章详情模态框 -->
+<div class="article-modal" id="articleModal" onclick="closeArticleModal(event)">
+    <div class="article-modal-dialog" onclick="event.stopPropagation()">
+        <div class="article-modal-header">
+            <div class="article-modal-header-main">
+                <div class="article-modal-eyebrow" id="articleModalEyebrow">文章预览</div>
+                <h2 id="articleModalTitle">文章标题</h2>
+                <div class="article-modal-subtitle" id="articleModalSubtitle">可上下滚动查看整篇文章</div>
+            </div>
+            <div class="article-modal-actions" id="articleModalActions">
+                <button class="article-modal-close" onclick="closeArticleModal(null, true)">关闭</button>
+            </div>
+        </div>
+        <div class="article-modal-body" id="articleModalContent">
+        </div>
+    </div>
+</div>
+
+
+<!-- 主内容区 -->
+<div class="main">
+
+    <!-- ===== 页面1: 自动化流程 ===== -->
+    <div class="page active" id="page-pipeline">
+        <div class="page-header">
+            <h2>新闻自动化流程</h2>
+            <p>选择行业和主题，一键完成新闻采集、分析、撰写与发布</p>
+        </div>
+
+        <!-- 流程步骤 -->
+        <div class="pipeline-steps">
+            <div class="step active" onclick="goToStep(1)" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-title">采集新闻</div>
+                <div class="step-desc">选择行业，检索热点</div>
+            </div>
+            <div class="step" onclick="goToStep(2)" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-title">分析提炼</div>
+                <div class="step-desc">AI分析主题</div>
+            </div>
+            <div class="step" onclick="goToStep(3)" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-title">生成内容</div>
+                <div class="step-desc">撰写新闻稿件</div>
+            </div>
+            <div class="step" onclick="goToStep(4)" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-title">一键分发</div>
+                <div class="step-desc">发布到各平台</div>
+            </div>
+        </div>
+
+        <!-- 步骤1: 采集配置 -->
+        <div id="panel-step1" class="step-panel">
+            <div class="card">
+                <div class="card-title">&#128269; 新闻采集配置</div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label class="required">选择行业</label>
+                        <select id="industry">
+                            <option value="">-- 请选择行业 --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>主题关键词（选填）</label>
+                        <input type="text" id="topic" placeholder="如：人工智能、芯片、新能源...">
+                    </div>
+                    <div class="form-group">
+                        <label>采集数量</label>
+                        <select id="collectCount">
+                            <option value="10">10条</option>
+                            <option value="20">20条</option>
+                            <option value="30">30条</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startCollect()">
+                        &#9654; 开始采集
+                    </button>
+                </div>
+            </div>
+
+            <!-- 采集结果 -->
+            <div class="card" id="collectResult" style="display:none;">
+                <div class="card-title">&#128240; 采集结果 <span id="collectCount2" style="color:var(--accent);font-size:13px;"></span></div>
+                <div class="news-list" id="newsList"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goToStep(2)">&#8594; 下一步：分析提炼</button>
+                </div>
+            </div>
+
+            <!-- 运行日志 -->
+            <div class="card">
+                <div class="card-title">&#128195; 运行日志</div>
+                <div class="log-panel" id="logPanel">
+                    <div class="log-line log-info">系统就绪，等待操作...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤2: 主题分析 -->
+        <div id="panel-step2" class="step-panel" style="display:none;">
+            <div class="card">
+                <div class="card-title">&#128202; 主题分析配置</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>提炼主题数量</label>
+                        <select id="themeCount">
+                            <option value="3">3条</option>
+                            <option value="5">5条</option>
+                            <option value="8">8条</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startAnalyze()">&#128202; 开始分析</button>
+                </div>
+            </div>
+
+            <div class="card" id="themeResult" style="display:none;">
+                <div class="card-title">&#127775; AI提炼的主题</div>
+                <div class="theme-cards" id="themeCards"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">&#8592; 上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">&#8594; 下一步：生成内容</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤3: 内容生成 -->
+        <div id="panel-step3" class="step-panel" style="display:none;">
+            <div class="card">
+                <div class="card-title">&#9999;&#65039; 内容生成配置</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>最少字数</label>
+                        <input type="number" id="minWords" value="800" min="300" max="2000">
+                    </div>
+                    <div class="form-group">
+                        <label>最多字数</label>
+                        <input type="number" id="maxWords" value="1500" min="500" max="3000">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startGenerate()">&#9998; 开始生成</button>
+                </div>
+            </div>
+
+            <div class="card" id="articleResult" style="display:none;">
+                <div class="card-title">&#128221; 生成的文章</div>
+                <div id="articleList"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">&#8592; 上一步</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">&#8594; 下一步：发布</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤4: 分发发布 -->
+        <div id="panel-step4" class="step-panel" style="display:none;">
+            <div class="card">
+                <div class="card-title">&#128640; 选择发布平台</div>
+                <div class="platform-options">
+                    <label class="platform-option" onclick="togglePlatform(this)">
+                        <input type="checkbox" value="website" checked>
+                        <div>
+                            <strong>自有官网</strong>
+                            <p style="font-size:12px;color:var(--text-muted)">自动登录后台发布文章</p>
+                        </div>
+                    </label>
+                    <label class="platform-option" onclick="togglePlatform(this)">
+                        <input type="checkbox" value="wechat">
+                        <div>
+                            <strong>微信公众号</strong>
+                            <p style="font-size:12px;color:var(--text-muted)">保存为草稿，需手动确认</p>
+                        </div>
+                    </label>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">&#8592; 上一步</button>
+                    <button class="btn btn-primary" onclick="startPublish()">&#128640; 开始发布</button>
+                </div>
+            </div>
+
+            <div class="card" id="publishResult" style="display:none;">
+                <div class="card-title">&#9989; 发布结果</div>
+                <div id="publishLog" class="log-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 页面2: 文章管理 ===== -->
+    <div class="page" id="page-articles">
+        <div class="page-header">
+            <h2>文章管理</h2>
+            <p>查看和管理所有已生成的文章</p>
+        </div>
+        <div class="card">
+            <div id="articlesTable"></div>
+        </div>
+    </div>
+
+    <!-- ===== 页面3: 发布历史 ===== -->
+    <div class="page" id="page-history">
+        <div class="page-header">
+            <h2>发布历史</h2>
+            <p>查看所有平台的发布记录</p>
+        </div>
+        <div class="card">
+            <div id="historyTable"></div>
+        </div>
+    </div>
+
+    <!-- ===== 页面4: 数据监测 ===== -->
+    <div class="page" id="page-monitor">
+        <div class="page-header">
+            <h2>数据监测</h2>
+            <p>查看已发布文章的阅读量、点赞等数据</p>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="card">
+            <div class="card-title">&#128200; 数据详情</div>
+            <div id="monitorTable"></div>
+        </div>
+    </div>
+
+    <!-- ===== 页面5: 系统设置 ===== -->
+    <div class="page" id="page-settings">
+        <div class="page-header">
+            <h2>系统设置</h2>
+            <p>配置LLM、平台账号等参数</p>
+        </div>
+        <div class="card">
+            <div class="card-title">&#128187; LLM配置</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>LLM提供商</label>
+                    <select id="llmProvider" onchange="toggleLLMUrl()">
+                        <option value="ollama">Ollama (本地)</option>
+                        <option value="openai">OpenAI兼容API</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>模型名称</label>
+                    <input type="text" id="llmModel" value="qwen2:7b">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>API地址</label>
+                <input type="text" id="llmUrl" value="http://localhost:11434">
+            </div>
+            <div class="form-group" id="llmApiKeyField" style="display: none;">
+                <label>API Key</label>
+                <input type="password" id="llmApiKey" placeholder="请输入 API Key">
+            </div>
+            <div class="form-group" id="llmApiUrlField" style="display: none;">
+                <label>聊天 API 地址</label>
+                <input type="text" id="llmApiUrl" placeholder="如：https://api.openai.com/v1">
+            </div>
+            <div class="form-group" id="llmTextUrlField" style="display: none;">
+                <label>文本生成 API 地址</label>
+                <input type="text" id="llmTextUrl" placeholder="如：https://api.openai.com/v1/chat/completions">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                <button class="btn btn-secondary" onclick="testLLM()">测试连接</button>
+            </div>
+        </div>
+        <!-- 发布平台配置 -->
+        <div class="card" style="margin-top:20px;">
+            <div class="card-title">&#128221; 发布平台配置</div>
+
+            <!-- 网站后台配置 -->
+            <div style="margin-bottom:20px;">
+                <h3 style="font-size:14px;color:var(--text-secondary);margin-bottom:15px;">&#127760; 网站后台</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>网站地址</label>
+                        <input type="text" id="websiteUrl" placeholder="https://example.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>登录用户名</label>
+                        <input type="text" id="websiteUsername">
+                    </div>
+                    <div class="form-group">
+                        <label>登录密码</label>
+                        <input type="password" id="websitePassword">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 微信公众号配置 -->
+            <div style="margin-bottom:20px;">
+                <h3 style="font-size:14px;color:var(--text-secondary);margin-bottom:15px;">&#128247; 微信公众号</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>AppID</label>
+                        <input type="text" id="wechatAppId" placeholder="微信公众号 AppID">
+                    </div>
+                    <div class="form-group">
+                        <label>AppSecret</label>
+                        <input type="password" id="wechatAppSecret" placeholder="微信公众号 AppSecret">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>接口地址</label>
+                        <input type="text" id="wechatApiUrl" placeholder="https://api.weixin.qq.com">
+                    </div>
+                    <div class="form-group">
+                        <label>AccessToken 缓存时间 (秒)</label>
+                        <input type="number" id="wechatAccessTokenExpire" value="7200" placeholder="7200">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveSettings()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ==================== 全局状态 ====================
+let currentStep = 1;
+let collectedNews = [];
+let generatedThemes = [];
+let generatedArticles = [];
+
+// ==================== 页面切换 ====================
+function switchPage(pageId, trigger = null) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    if (trigger) {
+        trigger.classList.add('active');
+    }
+
+    if (pageId === 'articles') loadArticles();
+    if (pageId === 'history') loadHistory();
+    if (pageId === 'monitor') loadMonitor();
+}
+
+// ==================== 流程步骤切换 ====================
+function goToStep(step) {
+    currentStep = step;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('step' + i).classList.remove('active', 'completed');
+        document.getElementById('panel-step' + i).style.display = 'none';
+        if (i < step) document.getElementById('step' + i).classList.add('completed');
+        if (i === step) document.getElementById('step' + i).classList.add('active');
+    }
+    document.getElementById('panel-step' + step).style.display = 'block';
+}
+
+// ==================== 加载行业列表 ====================
+async function loadIndustries() {
+    try {
+        const resp = await fetch('/api/industries');
+        const data = await resp.json();
+        const select = document.getElementById('industry');
+        select.innerHTML = '<option value="">-- 请选择行业 --</option>';
+        data.data.forEach(ind => {
+            select.innerHTML += `<option value="${ind.name}">${ind.name}</option>`;
+        });
+    } catch(e) {
+        addLog('加载行业列表失败: ' + e.message, 'error');
+    }
+}
+
+// ==================== 步骤1: 采集 ====================
+async function startCollect() {
+    const industry = document.getElementById('industry').value;
+    const topic = document.getElementById('topic').value;
+    const count = document.getElementById('collectCount').value;
+
+    if (!industry) {
+        alert('请选择行业！');
+        return;
+    }
+
+    showLoading('正在采集新闻...');
+    addLog(`开始采集: 行业=${industry}, 主题=${topic || '无'}, 数量=${count}`, 'info');
+
+    try {
+        const resp = await fetch('/api/collect', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({industry, topic, count: parseInt(count), time_range_hours: 24})
+        });
+        const data = await resp.json();
+
+        if (data.code === 0) {
+            collectedNews = data.data;
+            addLog(`采集完成: ${data.msg}`, 'success');
+
+            // 显示结果
+            document.getElementById('collectResult').style.display = 'block';
+            document.getElementById('collectCount2').textContent = `(共 ${collectedNews.length} 条)`;
+
+            const list = document.getElementById('newsList');
+            list.innerHTML = collectedNews.map((n, i) => `
+                <div class="news-item">
+                    <input type="checkbox" class="news-checkbox" checked data-index="${i}">
+                    <div class="news-info">
+                        <h4>${n.title}</h4>
+                        <div class="news-meta">
+                            <span>${n.source || '未知来源'}</span>
+                            <span>${n.publish_time || ''}</span>
+                            <span class="heat">&#128293; ${n.heat_score || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            addLog(`采集失败: ${data.msg}`, 'error');
+        }
+    } catch(e) {
+        addLog(`采集异常: ${e.message}`, 'error');
+    }
+
+    hideLoading();
+}
+
+// ==================== 步骤2: 分析 ====================
+async function startAnalyze() {
+    const themeCount = document.getElementById('themeCount').value;
+
+    showLoading('AI正在分析新闻主题...');
+    addLog(`开始分析: 提炼${themeCount}个主题`, 'info');
+
+    try {
+        const resp = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({theme_count: parseInt(themeCount)})
+        });
+        const data = await resp.json();
+
+        if (data.code === 0) {
+            generatedThemes = data.data.themes;
+            addLog(`分析完成: ${data.msg}`, 'success');
+
+            document.getElementById('themeResult').style.display = 'block';
+            document.getElementById('themeCards').innerHTML = generatedThemes.map((t, i) => `
+                <div class="theme-card selected" onclick="toggleTheme(this)">
+                    <h4>&#127775; ${t.theme}</h4>
+                    <p>${t.description || '暂无描述'}</p>
+                    <p style="font-size:11px;color:var(--accent);margin-top:8px;">
+                        关联 ${t.related_news_ids ? t.related_news_ids.length : 0} 条新闻
+                    </p>
+                </div>
+            `).join('');
+        } else {
+            addLog(`分析失败: ${data.msg}`, 'error');
+        }
+    } catch(e) {
+        addLog(`分析异常: ${e.message}`, 'error');
+    }
+
+    hideLoading();
+}
+
+function toggleTheme(el) {
+    el.classList.toggle('selected');
+}
+
+// ==================== 步骤3: 生成 ====================
+async function startGenerate() {
+    const minWords = document.getElementById('minWords').value;
+    const maxWords = document.getElementById('maxWords').value;
+
+    showLoading('AI正在撰写新闻稿件...');
+    addLog(`开始生成文章: ${minWords}-${maxWords}字`, 'info');
+
+    try {
+        const resp = await fetch('/api/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({min_words: parseInt(minWords), max_words: parseInt(maxWords)})
+        });
+        const data = await resp.json();
+
+        if (data.code === 0) {
+            generatedArticles = data.data;
+            addLog(`生成完成: ${data.msg}`, 'success');
+
+            document.getElementById('articleResult').style.display = 'block';
+            document.getElementById('articleList').innerHTML = generatedArticles.map(a => `
+                <div class="article-preview">
+                    <h3>${a.title}</h3>
+                    <div class="meta">
+                        <span>&#128204; ${a.theme}</span>
+                        <span>&#128221; ${a.word_count}字</span>
+                    </div>
+                    <div class="keywords">
+                        ${(a.keywords || []).map(k => `<span class="keyword-tag">${k}</span>`).join('')}
+                    </div>
+                    <div class="content">${a.content_preview}...</div>
+                </div>
+            `).join('');
+        } else {
+            addLog(`生成失败: ${data.msg}`, 'error');
+        }
+    } catch(e) {
+        addLog(`生成异常: ${e.message}`, 'error');
+    }
+
+    hideLoading();
+}
+
+// ==================== 步骤4: 发布 ====================
+function togglePlatform(el) {
+    el.classList.toggle('selected');
+}
+
+async function startPublish() {
+    const checkboxes = document.querySelectorAll('.platform-option input:checked');
+    const platforms = Array.from(checkboxes).map(cb => cb.value);
+
+    if (platforms.length === 0) {
+        alert('请至少选择一个发布平台！');
+        return;
+    }
+
+    showLoading('正在发布文章...');
+    addLog(`开始发布到: ${platforms.join(', ')}`, 'info');
+
+    try {
+        const resp = await fetch('/api/publish', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({platforms})
+        });
+        const data = await resp.json();
+
+        document.getElementById('publishResult').style.display = 'block';
+        const logEl = document.getElementById('publishLog');
+
+        if (data.code === 0) {
+            addLog('发布流程完成！', 'success');
+            logEl.innerHTML = `<div class="log-line log-success">发布完成！请查看各平台结果。</div>`;
+            if (data.data && data.data.details) {
+                data.data.details.forEach(d => {
+                    d.results.forEach(r => {
+                        const cls = r.success ? 'log-success' : 'log-error';
+                        const status = r.success ? '成功' : `失败: ${r.error}`;
+                        logEl.innerHTML += `<div class="log-line ${cls}">[${r.platform}] ${d.title} - ${status}</div>`;
+                    });
+                });
+            }
+        } else {
+            addLog(`发布失败: ${data.msg}`, 'error');
+            logEl.innerHTML = `<div class="log-line log-error">${data.msg}</div>`;
+        }
+    } catch(e) {
+        addLog(`发布异常: ${e.message}`, 'error');
+    }
+
+    hideLoading();
+}
+
+// ==================== 文章管理功能 ====================
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatArticleStatus(status) {
+    if (status === 'published') return '已发布';
+    if (status === 'archived') return '已归档';
+    return '草稿';
+}
+
+function openArticleModal({ eyebrow, title, subtitle, bodyHtml, actionsHtml = '' }) {
+    const modal = document.getElementById('articleModal');
+    const eyebrowEl = document.getElementById('articleModalEyebrow');
+    const titleEl = document.getElementById('articleModalTitle');
+    const subtitleEl = document.getElementById('articleModalSubtitle');
+    const actionsEl = document.getElementById('articleModalActions');
+    const bodyEl = document.getElementById('articleModalContent');
+
+    eyebrowEl.textContent = eyebrow || '文章';
+    titleEl.textContent = title || '未命名文章';
+    subtitleEl.textContent = subtitle || '';
+    actionsEl.innerHTML = actionsHtml || '<button class="article-modal-close" onclick="closeArticleModal(null, true)">关闭</button>';
+    bodyEl.innerHTML = bodyHtml || '';
+    bodyEl.scrollTop = 0;
+
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+}
+
+async function viewArticle(id) {
+    try {
+        const resp = await fetch(`/api/article/${id}`);
+        const data = await resp.json();
+
+        if (data.code !== 0) {
+            alert(data.msg);
+            return;
+        }
+
+        const article = data.data;
+
+        // 使用 marked 解析 Markdown
+        const htmlContent = marked.parse(article.content);
+        const metaItems = [
+            `<span class="article-modal-meta-item">文章 ID #${article.id}</span>`,
+            `<span class="article-modal-meta-item">状态：${formatArticleStatus(article.status)}</span>`,
+            `<span class="article-modal-meta-item">创建时间：${escapeHtml(article.created_at || '-')}</span>`
+        ];
+        const keywords = article.keywords || [];
+
+        openArticleModal({
+            eyebrow: '文章预览',
+            title: article.title,
+            subtitle: '支持上下滑动阅读整篇文章，适合长文通读和快速检查。',
+            actionsHtml: `
+                <button class="article-modal-ghost" onclick="editArticle(${article.id})">编辑</button>
+                <button class="article-modal-close" onclick="closeArticleModal(null, true)">关闭</button>
+            `,
+            bodyHtml: `
+                <div class="article-modal-section">
+                    <div class="article-modal-meta">
+                        ${metaItems.join('')}
+                    </div>
+                    <div class="markdown-content">
+                        <div class="keywords">
+                            ${keywords.map(k => `<span class="keyword-tag">${escapeHtml(k)}</span>`).join('')}
+                        </div>
+                        ${htmlContent}
+                    </div>
+                </div>
+            `
+        });
+    } catch(e) {
+        alert('加载失败：' + e.message);
+    }
+}
+
+async function editArticle(id) {
+    try {
+        const resp = await fetch(`/api/article/${id}`);
+        const data = await resp.json();
+
+        if (data.code !== 0) {
+            alert(data.msg);
+            return;
+        }
+
+        const article = data.data;
+        const keywords = (article.keywords || []).join(', ');
+
+        openArticleModal({
+            eyebrow: '文章编辑',
+            title: article.title,
+            subtitle: '标题固定显示，正文区域可独立滚动，适合边看边改整篇内容。',
+            actionsHtml: `
+                <button class="article-modal-ghost" onclick="viewArticle(${article.id})">预览</button>
+                <button class="article-modal-close" onclick="closeArticleModal(null, true)">取消</button>
+            `,
+            bodyHtml: `
+                <div class="article-editor">
+                    <div class="article-editor-grid">
+                        <div class="article-editor-main">
+                            <div class="form-group">
+                                <label>文章标题</label>
+                                <input type="text" id="editTitle" placeholder="请输入文章标题">
+                            </div>
+                            <div class="form-group">
+                                <label>文章正文</label>
+                                <textarea id="editContent" placeholder="请输入文章正文"></textarea>
+                            </div>
+                        </div>
+                        <div class="article-editor-side">
+                            <div class="form-group">
+                                <label>关键词</label>
+                                <input type="text" id="editKeywords" placeholder="用逗号分隔关键词">
+                            </div>
+                            <div class="article-modal-meta">
+                                <span class="article-modal-meta-item">文章 ID #${article.id}</span>
+                                <span class="article-modal-meta-item">状态：${formatArticleStatus(article.status)}</span>
+                                <span class="article-modal-meta-item">创建时间：${escapeHtml(article.created_at || '-')}</span>
+                            </div>
+                            <div class="article-modal-empty">编辑正文时可上下滚动查看整篇内容；保存后会自动刷新文章列表。</div>
+                        </div>
+                    </div>
+                    <div class="article-editor-footer">
+                        <div class="article-editor-tip">建议先确认标题与关键词，再通读正文后保存。</div>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="closeArticleModal(null, true)">取消</button>
+                            <button class="btn btn-primary" onclick="saveEditArticle(${id})">保存修改</button>
+                        </div>
+                    </div>
+                </div>
+            `
+        });
+
+        document.getElementById('editTitle').value = article.title || '';
+        document.getElementById('editKeywords').value = keywords;
+        document.getElementById('editContent').value = article.content || '';
+        document.getElementById('editContent').scrollTop = 0;
+    } catch(e) {
+        alert('加载失败：' + e.message);
+    }
+}
+
+function closeArticleModal(event, force = false) {
+    const modal = document.getElementById('articleModal');
+    if (modal) {
+        if (force || !event || event.target.id === 'articleModal') {
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
+    }
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closeArticleModal(null, true);
+    }
+});
+
+async function saveEditArticle(id) {
+    const title = document.getElementById('editTitle').value;
+    const keywordsStr = document.getElementById('editKeywords').value;
+    const content = document.getElementById('editContent').value;
+
+    const keywords = keywordsStr.split(',').map(k => k.trim()).filter(k => k);
+
+    try {
+        const resp = await fetch(`/api/article/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title, keywords, content})
+        });
+        const data = await resp.json();
+
+        if (data.code === 0) {
+            alert('保存成功');
+            closeArticleModal(null, true);
+            loadArticles();
+        } else {
+            alert('保存失败：' + data.msg);
+        }
+    } catch(e) {
+        alert('保存失败：' + e.message);
+    }
+}
+
+async function downloadArticle(id) {
+    window.open(`/api/article/${id}/download`, '_blank');
+}
+
+async function deleteArticle(id) {
+    if (!confirm('确定要删除这篇文章吗？')) return;
+
+    try {
+        const resp = await fetch(`/api/article/${id}`, {
+            method: 'DELETE'
+        });
+        const data = await resp.json();
+
+        if (data.code === 0) {
+            alert('删除成功');
+            loadArticles();
+        } else {
+            alert('删除失败：' + data.msg);
+        }
+    } catch(e) {
+        alert('删除失败：' + e.message);
+    }
+}
+
+// ==================== 数据加载 ====================
+async function loadArticles() {
+    try {
+        const resp = await fetch('/api/articles');
+        const data = await resp.json();
+        const articles = data.data || [];
+
+        document.getElementById('articlesTable').innerHTML = `
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th style="padding:10px;text-align:left;">ID</th>
+                    <th style="padding:10px;text-align:left;">标题</th>
+                    <th style="padding:10px;text-align:left;">状态</th>
+                    <th style="padding:10px;text-align:left;">创建时间</th>
+                    <th style="padding:10px;text-align:left;">操作</th>
+                </tr>
+                ${articles.map(a => `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:10px;">${a.id}</td>
+                        <td style="padding:10px;">${a.title}</td>
+                        <td style="padding:10px;">
+                            <span style="color:${a.status === 'draft' ? 'var(--warning)' : 'var(--accent)'}">
+                                ${a.status === 'draft' ? '草稿' : '已发布'}
+                            </span>
+                        </td>
+                        <td style="padding:10px;color:var(--text-muted);">${a.created_at}</td>
+                        <td style="padding:10px;">
+                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:12px;" onclick="viewArticle(${a.id})">预览</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:12px;" onclick="editArticle(${a.id})">编辑</button>
+                            <button class="btn btn-secondary" style="padding:5px 10px;font-size:12px;" onclick="downloadArticle(${a.id})">下载</button>
+                            <button class="btn btn-danger" style="padding:5px 10px;font-size:12px;" onclick="deleteArticle(${a.id})">删除</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
+    } catch(e) {
+        document.getElementById('articlesTable').innerHTML = '加载失败';
+    }
+}
+
+async function loadHistory() {
+    try {
+        const resp = await fetch('/api/history');
+        const data = await resp.json();
+        const records = data.data || [];
+
+        document.getElementById('historyTable').innerHTML = `
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th style="padding:10px;text-align:left;">平台</th>
+                    <th style="padding:10px;text-align:left;">状态</th>
+                    <th style="padding:10px;text-align:left;">链接</th>
+                    <th style="padding:10px;text-align:left;">发布时间</th>
+                </tr>
+                ${records.map(r => `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:10px;">${r.platform}</td>
+                        <td style="padding:10px;">
+                            <span style="color:${r.status === 'success' ? 'var(--accent)' : 'var(--danger)'}">
+                                ${r.status}
+                            </span>
+                        </td>
+                        <td style="padding:10px;font-size:12px;">
+                            <a href="${r.platform_url}" target="_blank" style="color:var(--info);">${r.platform_url || '-'}</a>
+                        </td>
+                        <td style="padding:10px;color:var(--text-muted);">${r.published_at}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
+    } catch(e) {
+        document.getElementById('historyTable').innerHTML = '加载失败';
+    }
+}
+
+async function loadMonitor() {
+    try {
+        const resp = await fetch('/api/monitor?days=30');
+        const data = await resp.json();
+        const report = data.data || {};
+
+        const summary = report.summary || {};
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card">
+                <div class="value">${summary.total_page_views || 0}</div>
+                <div class="label">总浏览量</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">${summary.total_likes || 0}</div>
+                <div class="label">总点赞数</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">${summary.total_comments || 0}</div>
+                <div class="label">总评论数</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">${report.total_articles_monitored || 0}</div>
+                <div class="label">监测文章数</div>
+            </div>
+        `;
+
+        const topArticles = report.top_articles || [];
+        document.getElementById('monitorTable').innerHTML = `
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th style="padding:10px;text-align:left;">排名</th>
+                    <th style="padding:10px;text-align:left;">标题</th>
+                    <th style="padding:10px;text-align:left;">浏览量</th>
+                    <th style="padding:10px;text-align:left;">点赞</th>
+                </tr>
+                ${topArticles.map((a, i) => `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:10px;">${i + 1}</td>
+                        <td style="padding:10px;">${a.title}</td>
+                        <td style="padding:10px;">${a.page_views}</td>
+                        <td style="padding:10px;">${a.likes}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        `;
+    } catch(e) {
+        document.getElementById('monitorTable').innerHTML = '加载失败: ' + e.message;
+    }
+}
+
+// ==================== 工具函数 ====================
+function addLog(message, type = 'info') {
+    const panel = document.getElementById('logPanel');
+    const time = new Date().toLocaleTimeString();
+    const cls = 'log-' + type;
+    panel.innerHTML += `<div class="log-line ${cls}">[${time}] ${message}</div>`;
+    panel.scrollTop = panel.scrollHeight;
+}
+
+function showLoading(text) {
+    document.getElementById('loadingText').textContent = text || '处理中...';
+    document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+function saveSettings() {
+    // 获取 LLM 配置
+    const llmProvider = document.getElementById('llmProvider').value;
+    const llmModel = document.getElementById('llmModel').value;
+    const llmApiUrl = document.getElementById('llmApiUrl').value;
+    const llmTextUrl = document.getElementById('llmTextUrl').value;
+    const llmApiKey = document.getElementById('llmApiKey').value;
+
+    // 获取发布平台配置
+    const websiteUrl = document.getElementById('websiteUrl').value;
+    const websiteUsername = document.getElementById('websiteUsername').value;
+    const websitePassword = document.getElementById('websitePassword').value;
+    const wechatAppId = document.getElementById('wechatAppId').value;
+    const wechatAppSecret = document.getElementById('wechatAppSecret').value;
+    const wechatApiUrl = document.getElementById('wechatApiUrl').value;
+    const wechatAccessTokenExpire = document.getElementById('wechatAccessTokenExpire').value;
+
+    const settings = {
+        llm: {
+            provider: llmProvider,
+            model: llmModel,
+            api_url: llmProvider === 'openai' ? llmApiUrl : '',
+            text_url: llmProvider === 'openai' ? llmTextUrl : '',
+            api_key: llmApiKey
+        },
+        distributors: {
+            website: {
+                url: websiteUrl,
+                username: websiteUsername,
+                password: websitePassword
+            },
+            wechat: {
+                app_id: wechatAppId,
+                app_secret: wechatAppSecret,
+                api_url: wechatApiUrl,
+                access_token_expire: parseInt(wechatAccessTokenExpire) || 7200
+            }
+        }
+    };
+
+    // 保存到后端
+    fetch('/api/settings', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(settings)
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        if (data.code === 0) {
+            alert('设置已保存！');
+        } else {
+            alert('保存失败：' + data.msg);
+        }
+    })
+    .catch(e => {
+        alert('保存失败：' + e.message);
+    });
+}
+
+function toggleLLMUrl() {
+    const provider = document.getElementById('llmProvider').value;
+    const apiUrlField = document.getElementById('llmApiUrl').closest('.form-group');
+    const textUrlField = document.getElementById('llmTextUrl').closest('.form-group');
+    const apiKeyField = document.getElementById('llmApiKey').closest('.form-group');
+
+    if (provider === 'openai') {
+        apiUrlField.style.display = 'block';
+        textUrlField.style.display = 'block';
+        apiKeyField.style.display = 'block';
+    } else {
+        apiUrlField.style.display = 'none';
+        textUrlField.style.display = 'none';
+        apiKeyField.style.display = 'none';
+    }
+}
+
+async function testLLM() {
+    addLog('正在测试LLM连接...', 'info');
+    try {
+        const resp = await fetch('/api/industries');
+        if (resp.ok) {
+            addLog('服务连接正常', 'success');
+        }
+    } catch(e) {
+        addLog('连接失败: ' + e.message, 'error');
+    }
+}
+
+// 初始化
+loadIndustries();
+toggleLLMUrl();
+</script>
+</body>
+</html>

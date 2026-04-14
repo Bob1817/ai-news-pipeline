@@ -1,0 +1,145 @@
+<Page
+    x:Class="AINewsPipeline.WinUI.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="设置">
+
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="系统设置" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,20" />
+
+        <TabView Grid.Row="1">
+            <TabViewItem Header="LLM配置">
+                <StackPanel Orientation="Vertical" Padding="20" Spacing="20">
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="LLM提供商：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <RadioButton x:Name="OllamaRadio" Content="Ollama" IsChecked="True" />
+                            <RadioButton x:Name="OpenAIRadio" Content="OpenAI" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="模型名称：" FontWeight="SemiBold" />
+                        <TextBox x:Name="ModelNameTextBox" PlaceholderText="例如：llama3" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="API密钥：" FontWeight="SemiBold" />
+                        <PasswordBox x:Name="ApiKeyBox" PlaceholderText="输入API密钥" />
+                        <CheckBox x:Name="ShowKeyCheckBox" Content="显示密钥" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="API基础URL：" FontWeight="SemiBold" />
+                        <TextBox x:Name="ApiUrlTextBox" PlaceholderText="例如：http://localhost:11434" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="温度参数：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Slider x:Name="TemperatureSlider" Minimum="0" Maximum="1" Value="0.7" Width="200" />
+                            <TextBlock x:Name="TemperatureText" Text="0.7" Width="40" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </TabViewItem>
+
+            <TabViewItem Header="文章参数">
+                <StackPanel Orientation="Vertical" Padding="20" Spacing="20">
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="文章长度（字数）：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Slider x:Name="ArticleLengthSlider" Minimum="500" Maximum="3000" Value="1000" Width="200" />
+                            <TextBlock x:Name="ArticleLengthText" Text="1000" Width="40" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="语言风格：" FontWeight="SemiBold" />
+                        <ComboBox x:Name="StyleComboBox">
+                            <ComboBoxItem>正式</ComboBoxItem>
+                            <ComboBoxItem>轻松</ComboBoxItem>
+                            <ComboBoxItem>专业</ComboBoxItem>
+                            <ComboBoxItem>幽默</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="是否自动配图：" FontWeight="SemiBold" />
+                        <ToggleSwitch x:Name="AutoImageToggle" IsOn="True" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="SEO优化：" FontWeight="SemiBold" />
+                        <ToggleSwitch x:Name="SeoToggle" IsOn="True" />
+                    </StackPanel>
+                </StackPanel>
+            </TabViewItem>
+
+            <TabViewItem Header="发布设置">
+                <StackPanel Orientation="Vertical" Padding="20" Spacing="20">
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="默认发布平台：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <CheckBox x:Name="WeChatCheckBox" Content="微信公众号" IsChecked="True" />
+                            <CheckBox x:Name="WeiboCheckBox" Content="微博" />
+                            <CheckBox x:Name="ZhihuCheckBox" Content="知乎" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="发布间隔（秒）：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Slider x:Name="IntervalSlider" Minimum="30" Maximum="300" Value="60" Width="200" />
+                            <TextBlock x:Name="IntervalText" Text="60" Width="40" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="自动发布：" FontWeight="SemiBold" />
+                        <ToggleSwitch x:Name="AutoPublishToggle" IsOn="False" />
+                    </StackPanel>
+                </StackPanel>
+            </TabViewItem>
+
+            <TabViewItem Header="采集设置">
+                <StackPanel Orientation="Vertical" Padding="20" Spacing="20">
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="采集间隔（分钟）：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Slider x:Name="CollectIntervalSlider" Minimum="10" Maximum="120" Value="30" Width="200" />
+                            <TextBlock x:Name="CollectIntervalText" Text="30" Width="40" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="最大采集数量：" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Slider x:Name="MaxCountSlider" Minimum="5" Maximum="50" Value="20" Width="200" />
+                            <TextBlock x:Name="MaxCountText" Text="20" Width="40" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Spacing="12">
+                        <TextBlock Text="自动采集：" FontWeight="SemiBold" />
+                        <ToggleSwitch x:Name="AutoCollectToggle" IsOn="False" />
+                    </StackPanel>
+                </StackPanel>
+            </TabViewItem>
+        </TabView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,20,0,0">
+            <Button x:Name="ResetButton" Content="重置" Click="ResetButton_Click" />
+            <Button x:Name="SaveButton" Content="保存设置" Click="SaveButton_Click" Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+    </Grid>
+</Page>

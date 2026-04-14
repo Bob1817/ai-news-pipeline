@@ -1,0 +1,21 @@
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{A8D9B8B3-4A0E-4F6D-9B8E-9E7C6E3D8F7A}</ProjectGuid>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+    <PackageCertificateKeyFile>AI新闻自动化系统_TemporaryKey.pfx</PackageCertificateKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AINewsPipeline.WinUI\AINewsPipeline.WinUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Package.appxmanifest" />
+    <None Include="AI新闻自动化系统_TemporaryKey.pfx" />
+  </ItemGroup>
+
+  <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
+</Project>
