@@ -26,12 +26,18 @@ jobs:
     - name: Show .NET version
       run: dotnet --version
 
+    - name: Clean previous builds
+      run: |
+        if (Test-Path "bin") { Remove-Item -Recurse -Force "bin" }
+        if (Test-Path "obj") { Remove-Item -Recurse -Force "obj" }
+      working-directory: WinUI/AINewsPipeline.WinUI
+
     - name: Restore NuGet packages
       run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
       working-directory: ${{ github.workspace }}
 
     - name: Publish WinUI application
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o bin/win-x64
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -p:Platform=x64 -o bin/win-x64
       working-directory: ${{ github.workspace }}
 
     - name: List published files

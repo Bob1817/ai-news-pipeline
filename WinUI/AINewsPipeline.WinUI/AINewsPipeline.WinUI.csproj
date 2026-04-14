@@ -8,6 +8,8 @@
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
@@ -15,21 +17,6 @@
 
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <EnableMsixTooling>false</EnableMsixTooling>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <XamlCompilerCompilationEnabled>false</XamlCompilerCompilationEnabled>
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <DisableImplicitWindowsTargeting>true</DisableImplicitWindowsTargeting>
-    <DisableWinSDKRIDResolution>true</DisableWinSDKRIDResolution>
-    <EnableCoreRuntimeIdentifierResolution>false</EnableCoreRuntimeIdentifierResolution>
-    <DefaultRuntimeIdentifiers></DefaultRuntimeIdentifiers>
-    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <WindowsSdkPackageVersion>10.0.19041.28</WindowsSdkPackageVersion>
-    <SDKIdentifier>Windows</SDKIdentifier>
-    <SDKVersion>10.0.19041.0</SDKVersion>
-    <EnableWindowsSDKReferenceFrameworkReferences>false</EnableWindowsSDKReferenceFrameworkReferences>
-    <EnableDefaultRuntimeIdentifiers>false</EnableDefaultRuntimeIdentifiers>
-    <ProduceSingleArtifact>true</ProduceSingleArtifact>
   </PropertyGroup>
 
   <ItemGroup>

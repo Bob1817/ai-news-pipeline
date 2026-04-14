@@ -1,19 +1,7 @@
 <Project>
   <PropertyGroup>
-    <!-- Disable preview SDK to avoid win10-* RID issues -->
-    <EnableMicrosoftNETSDKPreview>false</EnableMicrosoftNETSDKPreview>
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-    <!-- Disable Windows SDK framework reference that causes RID issues -->
-    <IncludeWindowsSDKRefFrameworkReferences>false</IncludeWindowsSDKRefFrameworkReferences>
-    <!-- Disable RID graph resolution -->
-    <EnableCoreRuntimeIdentifierResolution>false</EnableCoreRuntimeIdentifierResolution>
-    <!-- Disable WinSDK RID resolution -->
-    <DisableWinSDKRIDResolution>true</DisableWinSDKRIDResolution>
-    <!-- Override KnownRuntimePack to use non-win10 RIDs -->
-    <KnownRuntimePacks>win-x64;win-x86;win-arm64</KnownRuntimePacks>
-    <!-- Exclude default RIDs -->
-    <DefaultRids></DefaultRids>
-    <!-- Disable default runtime identifiers -->
+    <!-- Use portable RID for .NET 8+ compatibility -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <EnableDefaultRuntimeIdentifiers>false</EnableDefaultRuntimeIdentifiers>
   </PropertyGroup>
 </Project>
