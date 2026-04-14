@@ -17,6 +17,19 @@
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <XamlCompilerCompilationEnabled>false</XamlCompilerCompilationEnabled>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+    <DisableImplicitWindowsTargeting>true</DisableImplicitWindowsTargeting>
+    <DisableWinSDKRIDResolution>true</DisableWinSDKRIDResolution>
+    <EnableCoreRuntimeIdentifierResolution>false</EnableCoreRuntimeIdentifierResolution>
+    <DefaultRuntimeIdentifiers></DefaultRuntimeIdentifiers>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <WindowsSdkPackageVersion>10.0.19041.28</WindowsSdkPackageVersion>
+    <SDKIdentifier>Windows</SDKIdentifier>
+    <SDKVersion>10.0.19041.0</SDKVersion>
+    <EnableWindowsSDKReferenceFrameworkReferences>false</EnableWindowsSDKReferenceFrameworkReferences>
+    <EnableDefaultRuntimeIdentifiers>false</EnableDefaultRuntimeIdentifiers>
+    <ProduceSingleArtifact>true</ProduceSingleArtifact>
   </PropertyGroup>
 
   <ItemGroup>

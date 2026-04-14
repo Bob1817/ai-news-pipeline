@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using AINewsPipeline.WinUI.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AINewsPipeline.WinUI.Views
 {
@@ -72,6 +73,38 @@ namespace AINewsPipeline.WinUI.Views
             HistoryListView.ItemsSource = history;
         }
 
+        private void PlatformCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is PlatformItem platform)
+            {
+                platform.IsSelected = checkBox.IsChecked ?? false;
+            }
+        }
+
+        private void PlatformCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is PlatformItem platform)
+            {
+                platform.IsSelected = false;
+            }
+        }
+
+        private void ArticleCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is ArticleItem article)
+            {
+                article.IsSelected = checkBox.IsChecked ?? false;
+            }
+        }
+
+        private void ArticleCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is ArticleItem article)
+            {
+                article.IsSelected = false;
+            }
+        }
+
         private void PublishButton_Click(object sender, RoutedEventArgs e)
         {
             var selectedPlatforms = platforms.Where(p => p.IsSelected).ToList();
@@ -105,7 +138,7 @@ namespace AINewsPipeline.WinUI.Views
                     {
                         history.Insert(0, new PublishRecord
                         {
-                            Id = (int.Parse(history[0]?.Id ?? "0") + 1).ToString(),
+                            Id = GetNextRecordId().ToString(),
                             Title = article.Title,
                             Platform = platform.Name,
                             PublishedAt = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
@@ -114,10 +147,20 @@ namespace AINewsPipeline.WinUI.Views
                         });
                     }
                 }
-                HistoryListView.ItemsSource = new List<PublishRecord>(history);
+                HistoryListView.ItemsSource = null;
+                HistoryListView.ItemsSource = history;
                 ShowDialog("发布成功", "文章已成功发布到所选平台");
             };
             dialogConfirm.ShowAsync();
+        }
+
+        private int GetNextRecordId()
+        {
+            if (history.Count == 0)
+                return 1;
+
+            var maxId = history.Select(r => int.Parse(r.Id)).Max();
+            return maxId + 1;
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)

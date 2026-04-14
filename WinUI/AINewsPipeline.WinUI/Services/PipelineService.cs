@@ -78,7 +78,28 @@ namespace AINewsPipeline.WinUI.Services
                 pythonProcess.BeginErrorReadLine();
 
                 OnLogReceived("等待 Python 服务启动...");
-                await Task.Delay(5000);
+
+                // 等待服务启动，最多 15 秒
+                var startTime = DateTime.Now;
+                var maxWaitTime = TimeSpan.FromSeconds(15);
+
+                while (DateTime.Now - startTime < maxWaitTime)
+                {
+                    try
+                    {
+                        using var testRequest = new HttpClient { Timeout = TimeSpan.FromMilliseconds(500) };
+                        var response = await testRequest.GetAsync("http://localhost:5000/health").ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            OnLogReceived("Python 服务已就绪");
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        await Task.Delay(500).ConfigureAwait(false);
+                    }
+                }
 
                 OnLogReceived("连接到后端服务...");
 
@@ -100,10 +121,15 @@ namespace AINewsPipeline.WinUI.Services
 
                 try
                 {
-                    var response = await _httpClient.PostAsync("http://localhost:5000/run-pipeline", content);
-                    response.EnsureSuccessStatusCode();
+                    var response = await _httpClient.PostAsync("http://localhost:5000/run-pipeline", content).ConfigureAwait(false);
 
-                    var responseJson = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        throw new HttpRequestException($"API 请求失败：{response.StatusCode} - {errorContent}");
+                    }
+
+                    var responseJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     var result = JsonConvert.DeserializeObject<PipelineResult>(responseJson);
 
                     OnLogReceived($"新闻采集：{result.NewsCount}条");
@@ -117,6 +143,11 @@ namespace AINewsPipeline.WinUI.Services
                     OnLogReceived($"API 请求失败：{ex.Message}");
                     OnLogReceived("提示：请确保 Python 后端服务正在运行 (python main.py web --port 5000)");
                     OnTaskCompleted(false, ex.Message);
+                }
+                catch (TaskCanceledException)
+                {
+                    OnLogReceived("请求超时，请检查网络连接");
+                    OnTaskCompleted(false, "请求超时");
                 }
                 finally
                 {

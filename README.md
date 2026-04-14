@@ -167,6 +167,27 @@ pytest tests/ --cov=src --cov-report=html
 - **网络**: 需要访问互联网下载依赖和新闻源
 - **浏览器**: Playwright 支持的现代浏览器
 
+## WinUI 客户端
+
+本项目提供 WinUI 3 桌面客户端，支持 Windows 10/11。
+
+### 构建要求
+
+- **Windows SDK**: 10.0.19041.0 或更高版本
+- **.NET 8 SDK**
+- **Visual Studio 2022** (可选，用于开发)
+
+### GitHub Actions 构建
+
+项目配置了 GitHub Actions，自动在 Windows 环境下构建 WinUI 客户端：
+
+```yaml
+# 工作流配置：.github/workflows/build-winui.yml
+# 在 push 到 main 分支或创建 Release 时自动构建
+```
+
+构建产物为自包含的 x64 可执行文件，无需额外依赖。
+
 ## 许可证
 
 MIT License

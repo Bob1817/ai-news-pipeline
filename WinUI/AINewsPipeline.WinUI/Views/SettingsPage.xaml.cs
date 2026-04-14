@@ -1,5 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace AINewsPipeline.WinUI.Views
 {
@@ -9,6 +11,7 @@ namespace AINewsPipeline.WinUI.Views
         {
             this.InitializeComponent();
             WireUpSliders();
+            LoadSettings();
         }
 
         private void WireUpSliders()
@@ -79,6 +82,76 @@ namespace AINewsPipeline.WinUI.Views
 
         private void SaveSettings(SettingsData settings)
         {
+            try
+            {
+                var settingsPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "settings.json");
+                var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                File.WriteAllText(settingsPath, json);
+            }
+            catch (Exception ex)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "保存失败",
+                    Content = $"保存设置时出错：{ex.Message}",
+                    PrimaryButtonText = "确定"
+                };
+                dialog.XamlRoot = this.XamlRoot;
+                dialog.ShowAsync();
+            }
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                var settingsPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "settings.json");
+                if (File.Exists(settingsPath))
+                {
+                    var json = File.ReadAllText(settingsPath);
+                    var settings = JsonConvert.DeserializeObject<SettingsData>(json);
+                    if (settings != null)
+                    {
+                        LoadSettingsFromData(settings);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void LoadSettingsFromData(SettingsData settings)
+        {
+            if (settings.LlmProvider == "OpenAI")
+            {
+                OpenAIRadio.IsChecked = true;
+                OllamaRadio.IsChecked = false;
+            }
+            else
+            {
+                OllamaRadio.IsChecked = true;
+                OpenAIRadio.IsChecked = false;
+            }
+
+            ModelNameTextBox.Text = settings.ModelName;
+            ApiKeyBox.Password = settings.ApiKey;
+            ApiUrlTextBox.Text = settings.ApiUrl;
+            TemperatureSlider.Value = settings.Temperature;
+            TemperatureText.Text = settings.Temperature.ToString("0.00");
+            ArticleLengthSlider.Value = settings.ArticleLength;
+            ArticleLengthText.Text = settings.ArticleLength.ToString();
+            StyleComboBox.SelectedIndex = Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style) >= 0
+                ? Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style)
+                : 0;
+            AutoImageToggle.IsOn = settings.AutoImage;
+            SeoToggle.IsOn = settings.SeoOptimization;
+            IntervalSlider.Value = settings.PublishInterval;
+            IntervalText.Text = settings.PublishInterval.ToString();
+            AutoPublishToggle.IsOn = settings.AutoPublish;
+            CollectIntervalSlider.Value = settings.CollectInterval;
+            CollectIntervalText.Text = settings.CollectInterval.ToString();
+            MaxCountSlider.Value = settings.MaxCollectCount;
+            MaxCountText.Text = settings.MaxCollectCount.ToString();
+            AutoCollectToggle.IsOn = settings.AutoCollect;
         }
     }
 

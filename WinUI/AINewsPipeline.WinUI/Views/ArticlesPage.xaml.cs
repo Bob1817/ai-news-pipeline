@@ -152,7 +152,8 @@ namespace AINewsPipeline.WinUI.Views
                 dialog.PrimaryButtonClick += (s, args) =>
                 {
                     articles.Remove(selected);
-                    ArticlesListView.ItemsSource = new List<ArticleItem>(articles);
+                    ArticlesListView.ItemsSource = null;
+                    ArticlesListView.ItemsSource = articles;
                     ContentPreview.Text = "";
                 };
                 dialog.ShowAsync();
@@ -176,10 +177,23 @@ namespace AINewsPipeline.WinUI.Views
             public EditArticleControl(ArticleItem article)
             {
                 var panel = new StackPanel();
-                var titleBox = new TextBox { Text = article.Title, Header = "标题", Margin = new Thickness(0, 0, 0, 12) };
-                var contentBox = new TextBox { Text = article.Content, Header = "内容", AcceptsReturn = true, Height = 200, Margin = new Thickness(0, 0, 0, 12) };
-                panel.Children.Add(titleBox);
-                panel.Children.Add(contentBox);
+                panel.Orientation = Orientation.Vertical;
+                panel.Spacing = 12;
+
+                var titlePanel = new StackPanel();
+                titlePanel.Orientation = Orientation.Vertical;
+                titlePanel.Children.Add(new TextBlock { Text = "标题", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
+                var titleBox = new TextBox { Text = article.Title, Margin = new Thickness(0, 0, 0, 12) };
+                titlePanel.Children.Add(titleBox);
+
+                var contentPanel = new StackPanel();
+                contentPanel.Orientation = Orientation.Vertical;
+                contentPanel.Children.Add(new TextBlock { Text = "内容", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) });
+                var contentBox = new TextBox { Text = article.Content, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Height = 200, Margin = new Thickness(0, 0, 0, 12) };
+                contentPanel.Children.Add(contentBox);
+
+                panel.Children.Add(titlePanel);
+                panel.Children.Add(contentPanel);
                 this.Content = panel;
             }
         }

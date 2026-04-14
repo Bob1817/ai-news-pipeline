@@ -31,7 +31,7 @@ jobs:
       working-directory: ${{ github.workspace }}
 
     - name: Publish WinUI application
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release --self-contained true -o bin/win-x64 -r win-x64 -p:Platform=x64
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o bin/win-x64
       working-directory: ${{ github.workspace }}
 
     - name: List published files

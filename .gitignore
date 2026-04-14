@@ -80,3 +80,5 @@ build/
 # Large binary files
 *.pkg
 AI新闻自动化系统
+# Settings
+settings.json
