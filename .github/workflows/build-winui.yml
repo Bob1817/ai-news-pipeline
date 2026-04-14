@@ -7,22 +7,20 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v4.1.0
       with:
         dotnet-version: '8.0.x'
-    
-    - name: Install Windows App SDK via winget
-      run: |
-        winget install --id Microsoft.WindowsAppSDK --exact --accept-source-agreements --accept-package-agreements --silent
-      continue-on-error: true
     
     - name: Restore dependencies
       run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
@@ -35,14 +33,11 @@ jobs:
           -r win-x64 `
           --self-contained true `
           -o bin/win-x64 `
-          /p:PublishSingleFile=true `
           /p:PublishTrimmed=true `
           /p:WindowsAppSDKSelfContained=true `
           /p:EnableWindowsTargeting=true `
-          /p:EnableMsixTooling=true `
-          /p:AppxPackage=false `
-          /p:GenerateAppxPackageOnBuild=false `
-          /p:PackageCertificateKeyFile=
+          /p:EnableMsixTooling=false `
+          /p:AppxPackage=false
       working-directory: ${{ github.workspace }}
       env:
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -96,14 +91,14 @@ jobs:
       working-directory: ${{ github.workspace }}
     
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.3.3
       with:
         name: AI新闻自动化系统
         path: bin/AI新闻自动化系统_v1.0.0_win-x64.zip
     
     - name: Create Release
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v2.0.4
       with:
         tag_name: v1.0.0
         name: AI新闻自动化系统 v1.0.0
