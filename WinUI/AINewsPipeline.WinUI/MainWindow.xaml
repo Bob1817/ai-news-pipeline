@@ -6,9 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="AI新闻自动化系统"
-    Width="1200"
-    Height="800"
+    DefaultWidth="1200"
+    DefaultHeight="800"
     MinWidth="1024"
     MinHeight="768">
 
@@ -24,7 +23,7 @@
             PaneDisplayMode="Left"
             IsPaneToggleButtonVisible="True"
             IsBackButtonVisible="Collapsed"
-            Header="AI新闻自动化系统"
+            Header="AI 新闻自动化系统"
             SelectionChanged="NavView_SelectionChanged">
 
             <NavigationView.MenuItems>

@@ -12,6 +12,11 @@ namespace AINewsPipeline.WinUI
         public MainWindow()
         {
             this.InitializeComponent();
+
+            // 设置窗口大小
+            this.AppWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
+            this.AppWindow.MinSize = new Windows.Graphics.SizeInt32(1024, 768);
+
             NavView.SelectedItem = NavCollect;
             ContentFrame.Navigate(typeof(CollectPage));
 
