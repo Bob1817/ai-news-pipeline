@@ -19,23 +19,10 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
-    - name: Install Windows App SDK Runtime
+    - name: Install Windows App SDK via winget
       run: |
-        $url = "https://aka.ms/windowsappsdk/1.5/windowsappsdkruntime"
-        $outputFile = "WindowsAppSDK.exe"
-        Invoke-WebRequest -Uri $url -OutFile $outputFile
-        Start-Process -FilePath $outputFile -ArgumentList "/quiet", "/norestart" -Wait -NoNewWindow
-        Write-Host "Windows App SDK Runtime installed successfully"
-    
-    - name: Install Windows App SDK VSIX (for development)
-      run: |
-        winget install --id Microsoft.WindowsAppSDK --exact --accept-source-agreements --accept-package-agreements
+        winget install --id Microsoft.WindowsAppSDK --exact --accept-source-agreements --accept-package-agreements --silent
       continue-on-error: true
-    
-    - name: Set MSBuild path
-      run: |
-        $msbuildPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-        echo "MSBUILD_PATH=$msbuildPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
     
     - name: Restore dependencies
       run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
