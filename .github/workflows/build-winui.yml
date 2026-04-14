@@ -18,10 +18,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4.2.2
 
-    - name: Setup .NET 8
+    - name: Setup .NET 8.0.402
       uses: actions/setup-dotnet@v4.1.0
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '8.0.402'
 
     - name: Show .NET version
       run: dotnet --version
