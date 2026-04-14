@@ -23,21 +23,26 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
+    - name: Show .NET version
+      run: dotnet --version
+    
+    - name: Show directory structure
+      run: Get-ChildItem -Path WinUI -Recurse
+    
     - name: Restore NuGet packages
       run: dotnet restore WinUI/AINewsPipeline.WinUI.sln
       working-directory: ${{ github.workspace }}
     
     - name: Build solution
-      run: dotnet build WinUI/AINewsPipeline.WinUI.sln -c Release
+      run: dotnet build WinUI/AINewsPipeline.WinUI.sln -c Release --verbosity detailed
       working-directory: ${{ github.workspace }}
     
     - name: Publish WinUI application
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64 /p:WindowsAppSDKSelfContained=true
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64 /p:WindowsAppSDKSelfContained=true --verbosity detailed
       working-directory: ${{ github.workspace }}
     
     - name: List published files
       run: Get-ChildItem -Path bin/win-x64 -Recurse
-      working-directory: ${{ github.workspace }}
     
     - name: Create directory structure
       run: |
