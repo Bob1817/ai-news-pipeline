@@ -34,7 +34,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     
     - name: Build solution
-      run: dotnet build WinUI/AINewsPipeline.WinUI.sln -c Release --verbosity detailed
+      run: dotnet build WinUI/AINewsPipeline.WinUI.sln -c Release -p:Platform=x64 --verbosity detailed
       working-directory: ${{ github.workspace }}
     
     - name: Publish WinUI application
