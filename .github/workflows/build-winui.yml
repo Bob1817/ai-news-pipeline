@@ -9,19 +9,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup .NET
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '8.0.402'
+
+    - name: Verify .NET version
+      run: |
+        Write-Host "=== .NET Version ==="
+        dotnet --version
+        Write-Host "=== Available SDKs ==="
+        dotnet --list-sdks
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
+
+    - name: Find win10- RID references
+      run: |
+        Write-Host "=== Searching for win10- references ==="
+        Get-ChildItem -Recurse -Include *.csproj,*.props,*.targets,*.pubxml,*.yml,*.yaml,*.cs,*.xaml |
+          Select-String "win10-" |
+          ForEach-Object { Write-Host "$($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+
+    - name: Clean
+      run: |
+        if (Test-Path "WinUI/AINewsPipeline.WinUI/bin") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.WinUI/bin" }
+        if (Test-Path "WinUI/AINewsPipeline.WinUI/obj") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.WinUI/obj" }
 
     - name: Restore
       run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
 
     - name: Build
-      id: build
       run: >
         msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
         /t:Publish
