@@ -39,9 +39,10 @@ jobs:
           /p:PublishTrimmed=true `
           /p:WindowsAppSDKSelfContained=true `
           /p:EnableWindowsTargeting=true `
-          /p:EnableMsixTooling=false `
+          /p:EnableMsixTooling=true `
           /p:AppxPackage=false `
-          /p:GenerateAppxPackageOnBuild=false
+          /p:GenerateAppxPackageOnBuild=false `
+          /p:PackageCertificateKeyFile=
       working-directory: ${{ github.workspace }}
       env:
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
