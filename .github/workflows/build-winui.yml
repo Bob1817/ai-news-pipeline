@@ -15,41 +15,28 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4.2.2
+    - name: Checkout code
+      uses: actions/checkout@v4.2.2
     
-    - name: Setup .NET
+    - name: Setup .NET 8
       uses: actions/setup-dotnet@v4.1.0
       with:
         dotnet-version: '8.0.x'
     
-    - name: Restore dependencies
-      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
+    - name: Restore NuGet packages
+      run: dotnet restore WinUI/AINewsPipeline.WinUI.sln
       working-directory: ${{ github.workspace }}
     
-    - name: Build WinUI Application
-      run: |
-        dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
-          -c Release `
-          -r win-x64 `
-          --self-contained true `
-          -o bin/win-x64 `
-          /p:PublishTrimmed=true `
-          /p:WindowsAppSDKSelfContained=true `
-          /p:EnableWindowsTargeting=true `
-          /p:EnableMsixTooling=false `
-          /p:AppxPackage=false
+    - name: Build solution
+      run: dotnet build WinUI/AINewsPipeline.WinUI.sln -c Release
       working-directory: ${{ github.workspace }}
-      env:
-        DOTNET_CLI_TELEMETRY_OPTOUT: 1
     
-    - name: Verify build output
-      run: |
-        if (Test-Path "bin/win-x64/AINewsPipeline.WinUI.exe") {
-          Write-Host "Build successful! Executable found at bin/win-x64/AINewsPipeline.WinUI.exe"
-        } else {
-          Write-Host "Build failed! Executable not found"
-          exit 1
-        }
+    - name: Publish WinUI application
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64 /p:WindowsAppSDKSelfContained=true
+      working-directory: ${{ github.workspace }}
+    
+    - name: List published files
+      run: Get-ChildItem -Path bin/win-x64 -Recurse
       working-directory: ${{ github.workspace }}
     
     - name: Create directory structure
@@ -86,8 +73,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     
     - name: Create zip archive
-      run: |
-        Compress-Archive -Path bin/win-x64/* -DestinationPath bin/AI新闻自动化系统_v1.0.0_win-x64.zip -Force
+      run: Compress-Archive -Path bin/win-x64/* -DestinationPath bin/AI新闻自动化系统_v1.0.0_win-x64.zip -Force
       working-directory: ${{ github.workspace }}
     
     - name: Upload artifact
