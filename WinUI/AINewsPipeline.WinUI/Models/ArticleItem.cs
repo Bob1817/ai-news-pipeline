@@ -1,5 +1,6 @@
 using AINewsPipeline.WinUI.Models;
-using Windows.UI;
+using Microsoft.UI;
+using Microsoft.UI.Xaml.Media;
 
 namespace AINewsPipeline.WinUI.Models
 {
@@ -10,7 +11,7 @@ namespace AINewsPipeline.WinUI.Models
         private string _content;
         private string _createdAt;
         private string _status;
-        private Color _statusColor;
+        private SolidColorBrush _statusBrush;
         private bool _isSelected;
 
         public string Id
@@ -43,10 +44,10 @@ namespace AINewsPipeline.WinUI.Models
             set => SetProperty(ref _status, value);
         }
 
-        public Color StatusColor
+        public SolidColorBrush StatusBrush
         {
-            get => _statusColor;
-            set => SetProperty(ref _statusColor, value);
+            get => _statusBrush;
+            set => SetProperty(ref _statusBrush, value);
         }
 
         public bool IsSelected

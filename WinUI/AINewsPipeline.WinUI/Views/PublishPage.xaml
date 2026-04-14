@@ -56,11 +56,7 @@
                             <TextBlock Text="{x:Bind Title}" Width="300" />
                             <TextBlock Text="{x:Bind Platform}" Width="100" />
                             <TextBlock Text="{x:Bind PublishedAt}" Width="150" />
-                            <TextBlock Text="{x:Bind Status}">
-                                <TextBlock.Foreground>
-                                    <SolidColorBrush Color="{x:Bind StatusColor}" />
-                                </TextBlock.Foreground>
-                            </TextBlock>
+                            <TextBlock Text="{x:Bind Status}" Foreground="{x:Bind StatusBrush}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

@@ -1,9 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using AINewsPipeline.WinUI.Models;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.UI;
 
 namespace AINewsPipeline.WinUI.Views
 {
@@ -28,7 +28,7 @@ namespace AINewsPipeline.WinUI.Views
                     Content = "近年来，我国科技人力资源规模持续扩大，成为推动创新发展的重要力量。报告显示，我国科技人力资源总量已突破1亿人，为经济高质量发展提供了坚实支撑。科技人力资源作为国家战略资源，其规模和质量直接影响着国家创新能力和国际竞争力。",
                     CreatedAt = "2026-04-14 10:30",
                     Status = "已发布",
-                    StatusColor = Colors.Green
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Green)
                 },
                 new ArticleItem
                 {
@@ -37,7 +37,7 @@ namespace AINewsPipeline.WinUI.Views
                     Content = "科技人力资源是创新驱动发展的核心要素。随着数字化转型加速，科技人才的需求持续增长。企业和政府都在加大对科技人才的培养和引进力度，以应对日益激烈的国际竞争。",
                     CreatedAt = "2026-04-14 09:15",
                     Status = "已生成",
-                    StatusColor = Colors.Blue
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Blue)
                 },
                 new ArticleItem
                 {
@@ -46,7 +46,7 @@ namespace AINewsPipeline.WinUI.Views
                     Content = "科技人力资源的定义随着时代发展不断演变。从传统的研发人员到现代的数字化人才，科技人力资源的范畴在不断扩展。准确理解这一概念，对于制定人才战略具有重要意义。",
                     CreatedAt = "2026-04-13 16:45",
                     Status = "待审核",
-                    StatusColor = Colors.Orange
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Orange)
                 }
             };
 

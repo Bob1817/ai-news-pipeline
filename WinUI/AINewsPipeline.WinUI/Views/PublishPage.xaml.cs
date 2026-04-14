@@ -1,8 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using AINewsPipeline.WinUI.Models;
 using System.Collections.Generic;
-using Windows.UI;
 
 namespace AINewsPipeline.WinUI.Views
 {
@@ -45,7 +45,7 @@ namespace AINewsPipeline.WinUI.Views
                     Platform = "微信公众号",
                     PublishedAt = "2026-04-14 10:30",
                     Status = "成功",
-                    StatusColor = Colors.Green
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Green)
                 },
                 new PublishRecord
                 {
@@ -54,7 +54,7 @@ namespace AINewsPipeline.WinUI.Views
                     Platform = "微博",
                     PublishedAt = "2026-04-13 15:20",
                     Status = "成功",
-                    StatusColor = Colors.Green
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Green)
                 },
                 new PublishRecord
                 {
@@ -63,7 +63,7 @@ namespace AINewsPipeline.WinUI.Views
                     Platform = "知乎",
                     PublishedAt = "2026-04-12 09:15",
                     Status = "失败",
-                    StatusColor = Colors.Red
+                    StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Red)
                 }
             };
 
@@ -110,7 +110,7 @@ namespace AINewsPipeline.WinUI.Views
                             Platform = platform.Name,
                             PublishedAt = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
                             Status = "成功",
-                            StatusColor = Colors.Green
+                            StatusBrush = new SolidColorBrush(Microsoft.UI.Colors.Green)
                         });
                     }
                 }
