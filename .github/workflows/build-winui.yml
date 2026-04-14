@@ -1,6 +1,12 @@
 name: Build WinUI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ created ]
 
 jobs:
   build:
@@ -24,41 +30,80 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Find win10- RID references
-      run: |
-        Write-Host "=== Searching for win10- references ==="
-        Get-ChildItem -Recurse -Include *.csproj,*.props,*.targets,*.pubxml,*.yml,*.yaml,*.cs,*.xaml |
-          Select-String "win10-" |
-          ForEach-Object { Write-Host "$($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
-
     - name: Clean
       run: |
         if (Test-Path "WinUI/AINewsPipeline.WinUI/bin") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.WinUI/bin" }
         if (Test-Path "WinUI/AINewsPipeline.WinUI/obj") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.WinUI/obj" }
+        if (Test-Path "WinUI/AINewsPipeline.Package/bin") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.Package/bin" }
+        if (Test-Path "WinUI/AINewsPipeline.Package/obj") { Remove-Item -Recurse -Force "WinUI/AINewsPipeline.Package/obj" }
 
     - name: Restore
-      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
+      run: dotnet restore WinUI/AINewsPipeline.WinUI.sln
 
-    - name: Build
-      run: >
+    - name: Build App
+      run: |
         msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
-        /t:Publish
+        /t:Build
         /p:Configuration=Release
-        /p:RuntimeIdentifier=win-x64
+        /p:Platform=x64
         /p:SelfContained=true
-        /p:PublishDir=bin/win-x64
-        /v:diag 2>&1 | Out-File build.log
+        /p:RuntimeIdentifier=win-x64
+        /p:PublishSingleFile=true
+        /v:minimal
 
-    - name: Show errors
+    - name: Package MSIX
+      run: |
+        msbuild WinUI/AINewsPipeline.Package/AINewsPipeline.Package.wapproj
+        /t:Build
+        /p:Configuration=Release
+        /p:Platform=x64
+        /p:AppxBundle=Never
+        /v:minimal
+
+    - name: Show build output
       if: always()
       run: |
-        Write-Host "========== ERRORS =========="
-        Select-String -Path build.log -Pattern "error " | ForEach-Object { Write-Host $_.Line }
-        Write-Host "========== END =========="
+        Write-Host "=== Build Output ==="
+        if (Test-Path "WinUI/AINewsPipeline.Package\bin\x64\Release") {
+          Get-ChildItem "WinUI/AINewsPipeline.Package\bin\x64\Release" -Recurse | ForEach-Object { Write-Host $_.FullName }
+        }
+        if (Test-Path "WinUI/AINewsPipeline.WinUI\bin\x64\Release") {
+          Get-ChildItem "WinUI/AINewsPipeline.WinUI\bin\x64\Release" -Recurse | ForEach-Object { Write-Host $_.FullName }
+        }
 
-    - name: Upload build log
-      if: always()
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: build-log
-        path: build.log
+        name: winui-build
+        path: |
+          WinUI/AINewsPipeline.Package/bin/x64/Release/**/*.appx
+          WinUI/AINewsPipeline.Package/bin/x64/Release/**/*.msix
+          WinUI/AINewsPipeline.WinUI/bin/x64/Release/publish/**
+        retention-days: 7
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    if: github.event_name == 'release' && github.event.action == 'created'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: winui-build
+        path: winui-build
+
+    - name: Find MSIX/AppX files
+      run: |
+        Write-Host "=== Looking for MSIX/AppX files ==="
+        Get-ChildItem -Recurse -Path winui-build | Where-Object { $_.Extension -match '\.(msix|appx)$' } | ForEach-Object { Write-Host "Found: $($_.FullName)" }
+
+    - name: Create Release Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          winui-build/**/*.msix
+          winui-build/**/*.appx
+        fail_on_unmatched_files: true
