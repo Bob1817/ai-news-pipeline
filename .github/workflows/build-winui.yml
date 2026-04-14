@@ -1,78 +1,41 @@
-name: Build WinUI Application
+name: Build WinUI
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4.2.2
+    - uses: actions/checkout@v4
 
-    - name: Setup .NET 8.0.402
-      uses: actions/setup-dotnet@v4.1.0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.402'
+        dotnet-version: '8.0.x'
 
-    - name: Show .NET version
-      run: dotnet --version
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
-    - name: Show .NET SDK info
-      run: dotnet --list-sdks
-
-    - name: Show Windows SDK versions
-      run: |
-        Write-Host "=== Windows SDK Versions ==="
-        Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
-        Write-Host "=== Windows SDK Bin ==="
-        Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
-
-    - name: Clean previous builds
-      run: |
-        if (Test-Path "bin") { Remove-Item -Recurse -Force "bin" }
-        if (Test-Path "obj") { Remove-Item -Recurse -Force "obj" }
-      working-directory: WinUI/AINewsPipeline.WinUI
-
-    - name: Restore NuGet packages
-      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -v detailed
-      working-directory: ${{ github.workspace }}
-
-    - name: Check XamlCompiler location
-      run: |
-        $xamlCompiler = "C:\Users\runneradmin\.nuget\packages\microsoft.windowsappsdk\1.6.240829007\buildTransitive\..\tools\net6.0\net472\XamlCompiler.exe"
-        Write-Host "=== XamlCompiler Exists ==="
-        if (Test-Path $xamlCompiler) {
-          Write-Host "XamlCompiler found at: $xamlCompiler"
-          Get-Item $xamlCompiler | Format-List
-        } else {
-          Write-Host "XamlCompiler NOT found!"
-          Get-ChildItem "C:\Users\runneradmin\.nuget\packages\microsoft.windowsappsdk\1.6.240829007\tools" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
-        }
+    - name: Restore
+      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
 
     - name: Build with detailed logging
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64 -v detailed 2>&1 | Out-File build.log
-      working-directory: ${{ github.workspace }}
+      run: msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj /t:Publish /p:Configuration=Release /p:RuntimeIdentifier=win-x64 /p:SelfContained=true /p:PublishDir=bin/win-x64 /v:diag 2>&1 | Out-File build.log
 
     - name: Upload build log
-      if: failure()
-      uses: actions/upload-artifact@v4.3.3
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
         name: build-log
         path: build.log
 
     - name: List published files
+      if: success()
       run: Get-ChildItem -Path bin/win-x64 -Recurse
 
     - name: Create directory structure
+      if: success()
       run: |
         New-Item -ItemType Directory -Path bin/win-x64/config -Force | Out-Null
         New-Item -ItemType Directory -Path bin/win-x64/resources/styles -Force | Out-Null
@@ -80,9 +43,9 @@ jobs:
         New-Item -ItemType Directory -Path bin/win-x64/data/images -Force | Out-Null
         New-Item -ItemType Directory -Path bin/win-x64/data/llm_cache -Force | Out-Null
         New-Item -ItemType Directory -Path bin/win-x64/logs -Force | Out-Null
-      working-directory: ${{ github.workspace }}
 
     - name: Copy configuration files
+      if: success()
       run: |
         if (Test-Path "config") {
           Copy-Item -Path config/* -Destination bin/win-x64/config/ -Recurse -Force -ErrorAction SilentlyContinue
@@ -90,9 +53,9 @@ jobs:
         if (Test-Path "resources/styles") {
           Copy-Item -Path resources/styles/* -Destination bin/win-x64/resources/styles/ -Recurse -Force -ErrorAction SilentlyContinue
         }
-      working-directory: ${{ github.workspace }}
 
     - name: Create start script
+      if: success()
       run: |
         $content = @(
           '@echo off',
@@ -103,20 +66,20 @@ jobs:
           'start "" "AINewsPipeline.WinUI.exe"'
         )
         Set-Content -Path bin/win-x64/start.bat -Value $content -Encoding UTF8
-      working-directory: ${{ github.workspace }}
 
     - name: Create zip archive
+      if: success()
       run: Compress-Archive -Path bin/win-x64/* -DestinationPath bin/AI新闻自动化系统_v1.0.0_win-x64.zip -Force
-      working-directory: ${{ github.workspace }}
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4.3.3
+      if: success()
+      uses: actions/upload-artifact@v4
       with:
         name: AI新闻自动化系统
         path: bin/AI新闻自动化系统_v1.0.0_win-x64.zip
 
     - name: Create Release
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      if: github.event_name == 'push' && success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: softprops/action-gh-release@v2.0.4
       with:
         tag_name: v1.0.0
