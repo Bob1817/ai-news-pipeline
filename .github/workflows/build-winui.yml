@@ -26,6 +26,16 @@ jobs:
     - name: Show .NET version
       run: dotnet --version
 
+    - name: Show .NET SDK info
+      run: dotnet --list-sdks
+
+    - name: Show Windows SDK versions
+      run: |
+        Write-Host "=== Windows SDK Versions ==="
+        Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Include" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
+        Write-Host "=== Windows SDK Bin ==="
+        Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.Name }
+
     - name: Clean previous builds
       run: |
         if (Test-Path "bin") { Remove-Item -Recurse -Force "bin" }
@@ -33,12 +43,31 @@ jobs:
       working-directory: WinUI/AINewsPipeline.WinUI
 
     - name: Restore NuGet packages
-      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
+      run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -v detailed
       working-directory: ${{ github.workspace }}
 
-    - name: Publish WinUI application
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64
+    - name: Check XamlCompiler location
+      run: |
+        $xamlCompiler = "C:\Users\runneradmin\.nuget\packages\microsoft.windowsappsdk\1.6.240829007\buildTransitive\..\tools\net6.0\net472\XamlCompiler.exe"
+        Write-Host "=== XamlCompiler Exists ==="
+        if (Test-Path $xamlCompiler) {
+          Write-Host "XamlCompiler found at: $xamlCompiler"
+          Get-Item $xamlCompiler | Format-List
+        } else {
+          Write-Host "XamlCompiler NOT found!"
+          Get-ChildItem "C:\Users\runneradmin\.nuget\packages\microsoft.windowsappsdk\1.6.240829007\tools" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+        }
+
+    - name: Build with detailed logging
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release -r win-x64 --self-contained true -o bin/win-x64 -v detailed 2>&1 | Out-File build.log
       working-directory: ${{ github.workspace }}
+
+    - name: Upload build log
+      if: failure()
+      uses: actions/upload-artifact@v4.3.3
+      with:
+        name: build-log
+        path: build.log
 
     - name: List published files
       run: Get-ChildItem -Path bin/win-x64 -Recurse
