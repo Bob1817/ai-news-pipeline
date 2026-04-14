@@ -16,6 +16,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
+    <XamlCompilerCompilationEnabled>false</XamlCompilerCompilationEnabled>
+    <BuildFlattened>true</BuildFlattened>
   </PropertyGroup>
 
   <ItemGroup>
