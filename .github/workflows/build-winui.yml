@@ -23,12 +23,15 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Show .NET version
+      run: dotnet --version
+
     - name: Restore NuGet packages
       run: dotnet restore WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj
       working-directory: ${{ github.workspace }}
 
     - name: Publish WinUI application
-      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release --self-contained true -o bin/win-x64
+      run: dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj -c Release --self-contained true -o bin/win-x64 -r win-x64 -p:Platform=x64
       working-directory: ${{ github.workspace }}
 
     - name: List published files
