@@ -46,9 +46,6 @@ jobs:
         /t:Build
         /p:Configuration=Release
         /p:Platform=x64
-        /p:SelfContained=true
-        /p:RuntimeIdentifier=win-x64
-        /p:PublishSingleFile=true
         /v:minimal
 
     - name: Package MSIX
