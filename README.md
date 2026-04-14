@@ -160,6 +160,38 @@ pytest tests/ -v
 pytest tests/ --cov=src --cov-report=html
 ```
 
+## WinUI 客户端
+
+本项目提供 WinUI 3 桌面客户端，支持 Windows 10/11。
+
+### 构建要求
+
+- **Windows SDK**: 10.0.19041.0 或更高版本
+- **.NET 8 SDK**
+- **Visual Studio 2022** (可选，用于开发)
+
+### GitHub Actions 构建
+
+项目配置了 GitHub Actions，自动在 Windows 环境下构建 WinUI 客户端：
+
+```yaml
+# 工作流配置：.github/workflows/build-winui.yml
+# 触发条件：
+# - Push 到 main 或 master 分支
+# - Pull Request 到 main 或 master 分支
+# - 手动触发 (workflow_dispatch)
+```
+
+构建产物为自包含的 x64 可执行文件，无需额外依赖。
+
+### 本地构建
+
+```bash
+# 在 Windows 系统上
+cd WinUI/AINewsPipeline.WinUI
+dotnet publish -c Release -r win-x64 --self-contained true -o bin/win-x64
+```
+
 ## 系统要求
 
 - **Python**: 3.10 或更高版本（推荐 3.12）

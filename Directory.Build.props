@@ -1,7 +1,2 @@
 <Project>
-  <PropertyGroup>
-    <!-- Use portable RID for .NET 8+ compatibility -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <EnableDefaultRuntimeIdentifiers>false</EnableDefaultRuntimeIdentifiers>
-  </PropertyGroup>
 </Project>
