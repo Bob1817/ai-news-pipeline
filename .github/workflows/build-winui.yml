@@ -57,13 +57,14 @@ jobs:
 
     - name: Publish WinUI App
       run: |
-        dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
-          -c Release `
-          -r win-x64 `
-          --self-contained false `
+        msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
+          /t:Publish `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
           /p:PublishProfile=FolderProfile `
           /p:AppxBundle=Never `
-          -v minimal
+          /p:UseAppx=false `
+          /v:minimal
 
     - name: Show build output
       if: always()
