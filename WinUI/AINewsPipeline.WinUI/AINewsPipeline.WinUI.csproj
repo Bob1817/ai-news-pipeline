@@ -24,6 +24,7 @@
     <AppxBundle>Never</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <WindowsPackageType>None</WindowsPackageType>
+    <AppxPackage>false</AppxPackage>
     <AppxManifest>AppxManifest.xml</AppxManifest>
     <PackageCertificateThumbprint>THUMBPRINT</PackageCertificateThumbprint>
     <PackageCertificateKeyFile>WinUI_TemporaryKey.pfx</PackageCertificateKeyFile>
