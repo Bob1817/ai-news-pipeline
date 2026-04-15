@@ -15,22 +15,11 @@
     <Version>1.0.0</Version>
 
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <EnableMsixTooling>true</EnableMsixTooling>
+    <EnableMsixTooling>false</EnableMsixTooling>
     <UseRidGraph>true</UseRidGraph>
-    <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
-    <AppxPackage>true</AppxPackage>
-    <AppxPackageVisible>true</AppxPackageVisible>
-    <UapAppxPackageBuildMode>Always</UapAppxPackageBuildMode>
-    <AppxBundle>Never</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <WindowsPackageType>None</WindowsPackageType>
     <AppxPackage>false</AppxPackage>
-    <AppxManifest>AppxManifest.xml</AppxManifest>
-    <PackageCertificateThumbprint>THUMBPRINT</PackageCertificateThumbprint>
-    <PackageCertificateKeyFile>WinUI_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <SignAppxPackage>false</SignAppxPackage>
     <SkipPriGeneration>true</SkipPriGeneration>
-    <MrtCorePriGenEnabled>false</MrtCorePriGenEnabled>
   </PropertyGroup>
 
   <Target Name="DisablePRIGeneration" BeforeTargets="PrepareForPRI" Condition="false">

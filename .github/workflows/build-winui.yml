@@ -57,13 +57,13 @@ jobs:
 
     - name: Publish WinUI App
       run: |
-        msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
-          /t:Build,Pack `
-          /p:Configuration=Release `
-          /p:Platform=x64 `
-          /p:AppxBundle=Never `
-          /p:PublishProfile=FolderProfile `
-          /v:minimal
+        dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          --output ./publish
 
     - name: Show build output
       if: always()
@@ -84,18 +84,14 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: winui-build
-        path: |
-          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.exe
-          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.dll
-          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.msix
-          WinUI/AINewsPipeline.WinUI/bin/**/Release/AppX/**/*
+        path: ./publish
         retention-days: 7
         if-no-files-found: warn
 
   release:
     needs: build
     runs-on: windows-latest
-    if: github.event_name == 'release' && github.event.action == 'created'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
     - uses: actions/checkout@v4
@@ -114,6 +110,10 @@ jobs:
     - name: Create Release Assets
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
         files: |
           winui-build/**/*.exe
           winui-build/**/*.dll
