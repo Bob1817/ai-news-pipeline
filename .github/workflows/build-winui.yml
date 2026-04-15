@@ -58,12 +58,11 @@ jobs:
     - name: Publish WinUI App
       run: |
         msbuild WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
-          /t:Publish `
+          /t:Build,Pack `
           /p:Configuration=Release `
           /p:Platform=x64 `
-          /p:PublishProfile=FolderProfile `
           /p:AppxBundle=Never `
-          /p:UseAppx=false `
+          /p:PublishProfile=FolderProfile `
           /v:minimal
 
     - name: Show build output
@@ -88,6 +87,7 @@ jobs:
         path: |
           WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.exe
           WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.dll
+          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.msix
           WinUI/AINewsPipeline.WinUI/bin/**/Release/AppX/**/*
         retention-days: 7
         if-no-files-found: warn
