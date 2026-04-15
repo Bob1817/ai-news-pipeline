@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using AINewsPipeline.WinUI.Views;
 using System;
+using System.Windows;
 
 namespace AINewsPipeline.WinUI
 {
