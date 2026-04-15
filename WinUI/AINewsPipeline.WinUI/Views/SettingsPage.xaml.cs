@@ -1,7 +1,9 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
+using Windows.Storage;
 
 namespace AINewsPipeline.WinUI.Views
 {
@@ -84,11 +86,12 @@ namespace AINewsPipeline.WinUI.Views
         {
             try
             {
-                var settingsPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "settings.json");
+                var localFolder = ApplicationData.Current.LocalFolder;
+                var settingsPath = Path.Combine(localFolder.Path, "settings.json");
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText(settingsPath, json);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 var dialog = new ContentDialog
                 {
@@ -105,7 +108,8 @@ namespace AINewsPipeline.WinUI.Views
         {
             try
             {
-                var settingsPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "settings.json");
+                var localFolder = ApplicationData.Current.LocalFolder;
+                var settingsPath = Path.Combine(localFolder.Path, "settings.json");
                 if (File.Exists(settingsPath))
                 {
                     var json = File.ReadAllText(settingsPath);
@@ -139,8 +143,8 @@ namespace AINewsPipeline.WinUI.Views
             TemperatureText.Text = settings.Temperature.ToString("0.00");
             ArticleLengthSlider.Value = settings.ArticleLength;
             ArticleLengthText.Text = settings.ArticleLength.ToString();
-            StyleComboBox.SelectedIndex = Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style) >= 0
-                ? Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style)
+            StyleComboBox.SelectedIndex = System.Linq.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style) >= 0
+                ? System.Linq.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style)
                 : 0;
             AutoImageToggle.IsOn = settings.AutoImage;
             SeoToggle.IsOn = settings.SeoOptimization;

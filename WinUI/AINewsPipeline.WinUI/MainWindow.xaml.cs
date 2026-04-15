@@ -15,16 +15,15 @@ namespace AINewsPipeline.WinUI
 
             // 设置窗口大小
             this.AppWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
-            this.AppWindow.MinSize = new Windows.Graphics.SizeInt32(1024, 768);
 
             NavView.SelectedItem = NavCollect;
             ContentFrame.Navigate(typeof(CollectPage));
 
-            // 获取 StatusText 控件
-            DispatcherQueue.TryEnqueue(() =>
+            // 获取 StatusText 控件 - 在页面加载后获取
+            NavView.Loaded += (s, e) =>
             {
                 _statusText = (TextBlock)FindName("StatusText");
-            });
+            };
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
