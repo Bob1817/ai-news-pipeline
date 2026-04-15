@@ -1,5 +1,3 @@
-using AINewsPipeline.WinUI.Models;
-
 namespace AINewsPipeline.WinUI.Models
 {
     public class PlatformItem : BindableBase

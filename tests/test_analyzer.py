@@ -100,52 +100,50 @@ class TestLLMClient:
             assert client.provider == "openai"
             assert client.api_key == "test-key"
 
-    @patch('src.collector.analyzer.httpx.Client')
-    @patch.dict(os.environ, {"LLM_PROVIDER": "ollama"})
-    def test_chat_ollama_success(self, mock_env, mock_httpx, temp_dir):
+    def test_chat_ollama_success(self, temp_dir):
         """应该成功调用 Ollama API"""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'message': {'content': 'AI response'}
-        }
-        mock_response.raise_for_status.return_value = None
-        
-        mock_httpx_instance = MagicMock()
-        mock_httpx_instance.post.return_value = mock_response
-        mock_httpx.return_value.__enter__ = MagicMock(return_value=mock_httpx_instance)
-        mock_httpx.return_value.__exit__ = MagicMock(return_value=None)
-        
-        with patch('src.collector.analyzer.LLMCache'):
-            client = LLMClient(use_cache=False)
-            response = client.chat("system", "user")
-        
-        assert response == 'AI response'
-        mock_httpx_instance.post.assert_called_once()
+        with patch.dict(os.environ, {"LLM_PROVIDER": "ollama"}, clear=False):
+            with patch('httpx.Client') as mock_httpx:
+                mock_response = MagicMock()
+                mock_response.json.return_value = {
+                    'message': {'content': 'AI response'}
+                }
+                mock_response.raise_for_status.return_value = None
+                
+                mock_httpx.return_value.__enter__ = MagicMock(return_value=mock_httpx)
+                mock_httpx.return_value.__exit__ = MagicMock(return_value=None)
+                mock_httpx.post.return_value = mock_response
+                
+                with patch('src.collector.analyzer.LLMCache'):
+                    client = LLMClient(use_cache=False)
+                    response = client.chat("system", "user")
+                
+                assert response == 'AI response'
+                mock_httpx.post.assert_called_once()
 
-    @patch('src.collector.analyzer.httpx.Client')
-    @patch.dict(os.environ, {"LLM_PROVIDER": "openai", "OPENAI_API_KEY": "test-key"})
-    def test_chat_openai_success(self, mock_env, mock_httpx, temp_dir):
+    def test_chat_openai_success(self, temp_dir):
         """应该成功调用 OpenAI API"""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            'choices': [{'message': {'content': 'OpenAI response'}}]
-        }
-        mock_response.raise_for_status.return_value = None
-        
-        mock_httpx_instance = MagicMock()
-        mock_httpx_instance.post.return_value = mock_response
-        mock_httpx.return_value.__enter__ = MagicMock(return_value=mock_httpx_instance)
-        mock_httpx.return_value.__exit__ = MagicMock(return_value=None)
-        
-        with patch('src.collector.analyzer.LLMCache'):
-            client = LLMClient(use_cache=False)
-            response = client.chat("system", "user")
-        
-        assert response == 'OpenAI response'
+        with patch.dict(os.environ, {"LLM_PROVIDER": "openai", "OPENAI_API_KEY": "test-key"}, clear=False):
+            with patch('httpx.Client') as mock_httpx:
+                mock_response = MagicMock()
+                mock_response.json.return_value = {
+                    'choices': [{'message': {'content': 'OpenAI response'}}]
+                }
+                mock_response.raise_for_status.return_value = None
+                
+                mock_httpx.return_value.__enter__ = MagicMock(return_value=mock_httpx)
+                mock_httpx.return_value.__exit__ = MagicMock(return_value=None)
+                mock_httpx.post.return_value = mock_response
+                
+                with patch('src.collector.analyzer.LLMCache'):
+                    client = LLMClient(use_cache=False)
+                    response = client.chat("system", "user")
+                
+                assert response == 'OpenAI response'
 
     def test_chat_returns_empty_on_error(self, temp_dir):
         """应该在调用失败时返回空字符串"""
-        with patch('src.collector.analyzer.httpx.Client') as mock_httpx:
+        with patch('httpx.Client') as mock_httpx:
             mock_httpx.side_effect = Exception("Network error")
             with patch.dict(os.environ, {"LLM_PROVIDER": "ollama"}):
                 with patch('src.collector.analyzer.LLMCache'):

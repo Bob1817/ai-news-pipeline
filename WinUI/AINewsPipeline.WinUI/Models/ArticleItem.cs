@@ -1,4 +1,3 @@
-using AINewsPipeline.WinUI.Models;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
 
