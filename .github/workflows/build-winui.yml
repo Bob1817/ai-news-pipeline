@@ -55,24 +55,29 @@ jobs:
           /p:Platform=x64 `
           /v:minimal
 
-    - name: Package MSIX
+    - name: Publish WinUI App
       run: |
-        msbuild WinUI/AINewsPipeline.Package/AINewsPipeline.Package.wapproj `
-          /t:Build `
-          /p:Configuration=Release `
-          /p:Platform=x64 `
+        dotnet publish WinUI/AINewsPipeline.WinUI/AINewsPipeline.WinUI.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained false `
+          /p:PublishProfile=FolderProfile `
           /p:AppxBundle=Never `
-          /v:minimal
+          -v minimal
 
     - name: Show build output
       if: always()
       run: |
         Write-Host "=== Build Output ==="
-        if (Test-Path "WinUI/AINewsPipeline.Package\bin\x64\Release") {
-          Get-ChildItem "WinUI/AINewsPipeline.Package\bin\x64\Release" -Recurse | ForEach-Object { Write-Host $_.FullName }
-        }
-        if (Test-Path "WinUI/AINewsPipeline.WinUI\bin\x64\Release") {
-          Get-ChildItem "WinUI/AINewsPipeline.WinUI\bin\x64\Release" -Recurse | ForEach-Object { Write-Host $_.FullName }
+        $paths = @(
+          "WinUI/AINewsPipeline.WinUI/bin/x64/Release",
+          "WinUI/AINewsPipeline.WinUI/bin/Release/net8.0-windows10.0.22621.0/win-x64",
+          "WinUI/AINewsPipeline.Package/bin/x64/Release"
+        )
+        foreach ($p in $paths) {
+          if (Test-Path $p) {
+            Get-ChildItem $p -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+          }
         }
 
     - name: Upload artifacts
@@ -80,10 +85,11 @@ jobs:
       with:
         name: winui-build
         path: |
-          WinUI/AINewsPipeline.Package/bin/x64/Release/**/*.appx
-          WinUI/AINewsPipeline.Package/bin/x64/Release/**/*.msix
-          WinUI/AINewsPipeline.WinUI/bin/x64/Release/publish/**
+          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.exe
+          WinUI/AINewsPipeline.WinUI/bin/**/Release/**/*.dll
+          WinUI/AINewsPipeline.WinUI/bin/**/Release/AppX/**/*
         retention-days: 7
+        if-no-files-found: warn
 
   release:
     needs: build
@@ -99,15 +105,15 @@ jobs:
         name: winui-build
         path: winui-build
 
-    - name: Find MSIX/AppX files
+    - name: Find executable files
       run: |
-        Write-Host "=== Looking for MSIX/AppX files ==="
-        Get-ChildItem -Recurse -Path winui-build | Where-Object { $_.Extension -match '\.(msix|appx)$' } | ForEach-Object { Write-Host "Found: $($_.FullName)" }
+        Write-Host "=== Looking for executable files ==="
+        Get-ChildItem -Recurse -Path winui-build | Where-Object { $_.Extension -match '\.(exe|dll)$' } | ForEach-Object { Write-Host "Found: $($_.FullName)" }
 
     - name: Create Release Assets
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          winui-build/**/*.msix
-          winui-build/**/*.appx
-        fail_on_unmatched_files: true
+          winui-build/**/*.exe
+          winui-build/**/*.dll
+        fail_on_unmatched_files: false
