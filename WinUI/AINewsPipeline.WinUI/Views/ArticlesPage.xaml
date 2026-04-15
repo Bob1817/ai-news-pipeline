@@ -32,11 +32,11 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,20,0,0" Spacing="20">
             <ListView x:Name="ArticlesListView" Width="400" SelectionChanged="ArticlesListView_SelectionChanged">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="local:ArticleItem">
+                    <DataTemplate>
                         <StackPanel Padding="8" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}">
-                            <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                            <TextBlock Text="{x:Bind CreatedAt}" FontSize="12" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
-                            <TextBlock Text="{x:Bind Status}" FontSize="12" Margin="0,4,0,0" Foreground="{x:Bind StatusBrush}" />
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding CreatedAt}" FontSize="12" Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                            <TextBlock Text="{Binding Status}" FontSize="12" Margin="0,4,0,0" Foreground="{Binding StatusBrush}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

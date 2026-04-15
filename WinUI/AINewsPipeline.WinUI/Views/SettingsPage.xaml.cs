@@ -57,7 +57,7 @@ namespace AINewsPipeline.WinUI.Views
                 PrimaryButtonText = "确定"
             };
             dialog.XamlRoot = this.XamlRoot;
-            dialog.ShowAsync();
+            _ = dialog.ShowAsync();
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
@@ -100,7 +100,7 @@ namespace AINewsPipeline.WinUI.Views
                     PrimaryButtonText = "确定"
                 };
                 dialog.XamlRoot = this.XamlRoot;
-                dialog.ShowAsync();
+                _ = dialog.ShowAsync();
             }
         }
 

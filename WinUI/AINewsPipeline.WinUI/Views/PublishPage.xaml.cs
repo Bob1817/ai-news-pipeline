@@ -151,7 +151,7 @@ namespace AINewsPipeline.WinUI.Views
                 HistoryListView.ItemsSource = history;
                 ShowDialog("发布成功", "文章已成功发布到所选平台");
             };
-            dialogConfirm.ShowAsync();
+            _ = dialogConfirm.ShowAsync();
         }
 
         private int GetNextRecordId()
@@ -177,7 +177,7 @@ namespace AINewsPipeline.WinUI.Views
                 PrimaryButtonText = "确定"
             };
             dialog.XamlRoot = this.XamlRoot;
-            dialog.ShowAsync();
+            _ = dialog.ShowAsync();
         }
     }
 }

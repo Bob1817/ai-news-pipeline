@@ -107,7 +107,7 @@ namespace AINewsPipeline.WinUI.Views
                     SecondaryButtonText = "取消"
                 };
                 dialog.XamlRoot = this.XamlRoot;
-                dialog.ShowAsync();
+                _ = dialog.ShowAsync();
             }
         }
 
@@ -123,7 +123,7 @@ namespace AINewsPipeline.WinUI.Views
                     PrimaryButtonText = "关闭"
                 };
                 dialog.XamlRoot = this.XamlRoot;
-                dialog.ShowAsync();
+                _ = dialog.ShowAsync();
             }
         }
 
@@ -156,7 +156,7 @@ namespace AINewsPipeline.WinUI.Views
                     ArticlesListView.ItemsSource = articles;
                     ContentPreview.Text = "";
                 };
-                dialog.ShowAsync();
+                _ = dialog.ShowAsync();
             }
         }
 
@@ -169,7 +169,7 @@ namespace AINewsPipeline.WinUI.Views
                 PrimaryButtonText = "确定"
             };
             dialog.XamlRoot = this.XamlRoot;
-            dialog.ShowAsync();
+            _ = dialog.ShowAsync();
         }
 
         public sealed class EditArticleControl : UserControl

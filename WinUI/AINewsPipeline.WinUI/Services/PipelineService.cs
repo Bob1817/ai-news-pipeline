@@ -16,6 +16,8 @@ namespace AINewsPipeline.WinUI.Services
         private HttpClient _httpClient;
         private bool _isRunning;
 
+        public bool IsRunning => _isRunning;
+
         public PipelineService()
         {
             _httpClient = new HttpClient();

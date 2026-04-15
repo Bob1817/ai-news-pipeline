@@ -22,10 +22,10 @@
                 <TextBlock Text="选择发布平台：" Margin="0,0,0,8" />
                 <ListView x:Name="PlatformListView" SelectionMode="None">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="local:PlatformItem">
+                        <DataTemplate>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <CheckBox IsChecked="{x:Bind IsSelected, Mode=TwoWay}" Checked="PlatformCheckBox_Checked" Unchecked="PlatformCheckBox_Unchecked" />
-                                <TextBlock Text="{x:Bind Name}" />
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="PlatformCheckBox_Checked" Unchecked="PlatformCheckBox_Unchecked" />
+                                <TextBlock Text="{Binding Name}" />
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -36,10 +36,10 @@
                 <TextBlock Text="待发布文章：" Margin="0,0,0,8" />
                 <ListView x:Name="ArticlesListView" SelectionMode="None">
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="local:ArticleItem">
+                        <DataTemplate>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <CheckBox IsChecked="{x:Bind IsSelected, Mode=TwoWay}" Checked="ArticleCheckBox_Checked" Unchecked="ArticleCheckBox_Unchecked" />
-                                <TextBlock Text="{x:Bind Title}" TextWrapping="Wrap" Width="200" />
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="ArticleCheckBox_Checked" Unchecked="ArticleCheckBox_Unchecked" />
+                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Width="200" />
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -51,12 +51,12 @@
             <TextBlock Text="发布历史：" Margin="0,0,0,12" />
             <ListView x:Name="HistoryListView">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="local:PublishRecord">
+                    <DataTemplate>
                         <StackPanel Orientation="Horizontal" Spacing="12" Padding="8" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}">
-                            <TextBlock Text="{x:Bind Title}" Width="300" />
-                            <TextBlock Text="{x:Bind Platform}" Width="100" />
-                            <TextBlock Text="{x:Bind PublishedAt}" Width="150" />
-                            <TextBlock Text="{x:Bind Status}" Foreground="{x:Bind StatusBrush}" />
+                            <TextBlock Text="{Binding Title}" Width="300" />
+                            <TextBlock Text="{Binding Platform}" Width="100" />
+                            <TextBlock Text="{Binding PublishedAt}" Width="150" />
+                            <TextBlock Text="{Binding Status}" Foreground="{Binding StatusBrush}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
