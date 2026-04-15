@@ -23,7 +23,7 @@
     <UapAppxPackageBuildMode>Always</UapAppxPackageBuildMode>
     <AppxBundle>Never</AppxBundle>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
-    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsPackageType>None</WindowsPackageType>
     <AppxManifest>AppxManifest.xml</AppxManifest>
     <PackageCertificateThumbprint>THUMBPRINT</PackageCertificateThumbprint>
     <PackageCertificateKeyFile>WinUI_TemporaryKey.pfx</PackageCertificateKeyFile>
