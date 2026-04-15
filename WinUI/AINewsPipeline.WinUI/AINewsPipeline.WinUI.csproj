@@ -16,6 +16,11 @@
 
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <EnableMsixTooling>false</EnableMsixTooling>
+    <UseRidGraph>true</UseRidGraph>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackage>False</AppxPackage>
+    <AppxPackageVisible>False</AppxPackageVisible>
+    <UapAppxPackageBuildMode>None</UapAppxPackageBuildMode>
   </PropertyGroup>
 
   <ItemGroup>
