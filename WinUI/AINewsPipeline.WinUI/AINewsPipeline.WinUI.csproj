@@ -32,10 +32,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Assets\**" />
-    <Content Include="Resources\**" />
-    <None Include="Assets\AppIcon.ico" />
-  </ItemGroup>
 </Project>
