@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using AINewsPipeline.WinUI.Views;
 using System;
-using System.Windows;
 
 namespace AINewsPipeline.WinUI
 {
@@ -20,11 +19,12 @@ namespace AINewsPipeline.WinUI
             NavView.SelectedItem = NavCollect;
             ContentFrame.Navigate(typeof(CollectPage));
 
-            // 获取 StatusText 控件 - 在页面加载后获取
-            this.Loaded += (s, e) =>
+            // 获取 StatusText 控件 - 延迟获取
+            DispatcherQueue.TryEnqueue(async () =>
             {
+                await Task.Delay(100);
                 _statusText = (TextBlock)FindName("StatusText");
-            };
+            });
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
