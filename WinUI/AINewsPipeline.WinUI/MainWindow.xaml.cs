@@ -1,14 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using AINewsPipeline.WinUI.Views;
-using System;
 
 namespace AINewsPipeline.WinUI
 {
     public sealed partial class MainWindow : Window
     {
-        private TextBlock _statusText;
-
         public MainWindow()
         {
             this.InitializeComponent();
@@ -18,13 +15,6 @@ namespace AINewsPipeline.WinUI
 
             NavView.SelectedItem = NavCollect;
             ContentFrame.Navigate(typeof(CollectPage));
-
-            // 获取 StatusText 控件 - 延迟获取
-            DispatcherQueue.TryEnqueue(async () =>
-            {
-                await Task.Delay(100);
-                _statusText = (TextBlock)FindName("StatusText");
-            });
         }
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -55,10 +45,7 @@ namespace AINewsPipeline.WinUI
 
         public void UpdateStatus(string status)
         {
-            if (_statusText != null)
-            {
-                _statusText.Text = status;
-            }
+            // 状态更新功能将在后续实现
         }
     }
 }
