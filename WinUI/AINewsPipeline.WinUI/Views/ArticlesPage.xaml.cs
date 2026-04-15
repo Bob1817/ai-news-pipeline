@@ -182,13 +182,13 @@ namespace AINewsPipeline.WinUI.Views
 
                 var titlePanel = new StackPanel();
                 titlePanel.Orientation = Orientation.Vertical;
-                titlePanel.Children.Add(new TextBlock { Text = "标题", FontWeight = new FontWeight { Weight = 600 }, Margin = new Thickness(0, 0, 0, 4) });
+                titlePanel.Children.Add(new TextBlock { Text = "标题", FontWeight = new Windows.UI.Text.FontWeight { Weight = 600 }, Margin = new Thickness(0, 0, 0, 4) });
                 var titleBox = new TextBox { Text = article.Title, Margin = new Thickness(0, 0, 0, 12) };
                 titlePanel.Children.Add(titleBox);
 
                 var contentPanel = new StackPanel();
                 contentPanel.Orientation = Orientation.Vertical;
-                contentPanel.Children.Add(new TextBlock { Text = "内容", FontWeight = new FontWeight { Weight = 600 }, Margin = new Thickness(0, 0, 0, 4) });
+                contentPanel.Children.Add(new TextBlock { Text = "内容", FontWeight = new Windows.UI.Text.FontWeight { Weight = 600 }, Margin = new Thickness(0, 0, 0, 4) });
                 var contentBox = new TextBox { Text = article.Content, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Height = 200, Margin = new Thickness(0, 0, 0, 12) };
                 contentPanel.Children.Add(contentBox);
 

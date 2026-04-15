@@ -20,7 +20,7 @@ namespace AINewsPipeline.WinUI
             ContentFrame.Navigate(typeof(CollectPage));
 
             // 获取 StatusText 控件 - 在页面加载后获取
-            NavView.Loaded += (s, e) =>
+            this.Loaded += (s, e) =>
             {
                 _statusText = (TextBlock)FindName("StatusText");
             };

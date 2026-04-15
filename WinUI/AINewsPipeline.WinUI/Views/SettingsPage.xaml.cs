@@ -143,8 +143,8 @@ namespace AINewsPipeline.WinUI.Views
             TemperatureText.Text = settings.Temperature.ToString("0.00");
             ArticleLengthSlider.Value = settings.ArticleLength;
             ArticleLengthText.Text = settings.ArticleLength.ToString();
-            StyleComboBox.SelectedIndex = System.Linq.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style) >= 0
-                ? System.Linq.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style)
+            StyleComboBox.SelectedIndex = System.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style) >= 0
+                ? System.Array.IndexOf(new[] { "正式", "轻松", "专业", "幽默" }, settings.Style)
                 : 0;
             AutoImageToggle.IsOn = settings.AutoImage;
             SeoToggle.IsOn = settings.SeoOptimization;
