@@ -8,6 +8,9 @@ on:
   release:
     types: [ created ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -116,5 +119,4 @@ jobs:
         prerelease: false
         files: |
           winui-build/**/*.exe
-          winui-build/**/*.dll
         fail_on_unmatched_files: false
