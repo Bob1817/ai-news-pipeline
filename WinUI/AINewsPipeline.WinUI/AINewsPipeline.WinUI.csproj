@@ -23,7 +23,13 @@
     <UapAppxPackageBuildMode>None</UapAppxPackageBuildMode>
     <SkipPriGeneration>true</SkipPriGeneration>
     <MrtCorePriGenEnabled>false</MrtCorePriGenEnabled>
+    <ImportWindowsSdkTargets>False</ImportWindowsSdkTargets>
+    <DisableWinUIResourceGeneration>true</DisableWinUIResourceGeneration>
   </PropertyGroup>
+
+  <Target Name="DisablePRIGeneration" BeforeTargets="PrepareForPRI" Condition="false">
+    <Message Text="PRI generation disabled" Importance="High" />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
