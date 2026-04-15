@@ -21,6 +21,8 @@
     <AppxPackage>False</AppxPackage>
     <AppxPackageVisible>False</AppxPackageVisible>
     <UapAppxPackageBuildMode>None</UapAppxPackageBuildMode>
+    <SkipPriGeneration>true</SkipPriGeneration>
+    <MrtCorePriGenEnabled>false</MrtCorePriGenEnabled>
   </PropertyGroup>
 
   <ItemGroup>
